@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Village extends Model
 {
-    protected $fillable = ['name', 'district_id', 'classification_id'];
+    protected $fillable = ['code', 'name', 'district_id', 'classification_id'];
 
     /**
      * Get the district that owns the Village

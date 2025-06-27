@@ -28,6 +28,7 @@ return new class extends Migration
         // desa
         Schema::create('villages', function (Blueprint $table) {
             $table->id();
+            $table->char('code', 3);
             $table->string('name')->unique();
             $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
             $table->foreignId('classification_id')->constrained('classifications')->onDelete('cascade');
