@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,18 +11,15 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     // Handle user login
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
         // Validate request data
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $validated = $request->safe()->only(['email', 'password']);
 
         // Attempt to log the user in
-        if (Auth::attempt($request->only('email', 'password'))) {
+        if (Auth::attempt($validated)) {
             // Generate a new token for the user
-            $token = $request->user()->createToken($request->token_name);
+            $token = $request->user()->createToken('auth_token');
 
             return response()->json(['token' => $token->plainTextToken], 200);
         }
