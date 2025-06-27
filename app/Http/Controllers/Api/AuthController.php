@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -27,7 +28,7 @@ class AuthController extends Controller
             return $this->json(
                 message: 'Login successful',
                 data: [
-                    'user' => $user,
+                    'user' => new UserResource($user),
                     'token' => $token->plainTextToken
                 ]
             );
@@ -62,7 +63,7 @@ class AuthController extends Controller
             status: 201,
             message: 'Registration successful',
             data: [
-                'user' => $user->load('roles'),
+                'user' => new UserResource($user->load('roles')),
                 'token' => $token
             ]
         );
@@ -75,7 +76,7 @@ class AuthController extends Controller
         return $this->json(
             message: 'Profile retrieved successfully',
             data: [
-                'user' => $request->user()->load('roles')
+                'user' => new UserResource($request->user()->load('roles'))
             ]
         );
     }
