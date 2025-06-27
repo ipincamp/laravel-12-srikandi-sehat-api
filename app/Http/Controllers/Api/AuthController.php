@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -18,13 +20,15 @@ class AuthController extends Controller
 
         // Attempt to log the user in
         if (Auth::attempt($validated)) {
+            $user = $request->user()->load('roles');
+
             // Generate a new token for the user
-            $token = $request->user()->createToken('auth_token');
+            $token = $user->createToken('auth_token');
 
             return $this->json(
                 message: 'Login successful',
                 data: [
-                    'user' => $request->user(),
+                    'user' => new UserResource($user),
                     'token' => $token->plainTextToken
                 ]
             );
@@ -49,6 +53,9 @@ class AuthController extends Controller
             'password' => bcrypt($validated['password']),
         ]);
 
+        // Assign the default role to the user
+        $user->assignRole(RolesEnum::USER);
+
         // Generate a new token for the user
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -56,7 +63,7 @@ class AuthController extends Controller
             status: 201,
             message: 'Registration successful',
             data: [
-                'user' => $user,
+                'user' => new UserResource($user->load('roles')),
                 'token' => $token
             ]
         );
@@ -69,7 +76,7 @@ class AuthController extends Controller
         return $this->json(
             message: 'Profile retrieved successfully',
             data: [
-                'user' => $request->user()
+                'user' => new UserResource($request->user()->load('roles'))
             ]
         );
     }
