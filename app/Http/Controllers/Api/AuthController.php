@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,24 +30,20 @@ class AuthController extends Controller
     }
 
     // Handle user registration
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
         // Validate request data
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $validated = $request->safe()->only(['name', 'email', 'password']);
 
         // Create a new user
         $user = \App\Models\User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
         ]);
 
         // Generate a new token for the user
-        $token = $user->createToken($request->token_name);
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json(['token' => $token], 201);
     }
