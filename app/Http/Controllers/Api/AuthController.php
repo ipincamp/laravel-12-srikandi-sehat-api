@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -62,8 +62,20 @@ class AuthController extends Controller
         );
     }
 
+    // Handle user profile retrieval
+    public function profile(AuthRequest $request)
+    {
+        // Return the authenticated user's profile
+        return $this->json(
+            message: 'Profile retrieved successfully',
+            data: [
+                'user' => $request->user()
+            ]
+        );
+    }
+
     // Handle user logout
-    public function logout(Request $request)
+    public function logout(AuthRequest $request)
     {
         // Revoke the user's token
         $request->user()->currentAccessToken()->delete();
