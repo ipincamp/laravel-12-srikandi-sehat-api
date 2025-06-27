@@ -21,10 +21,19 @@ class AuthController extends Controller
             // Generate a new token for the user
             $token = $request->user()->createToken('auth_token');
 
-            return response()->json(['token' => $token->plainTextToken], 200);
+            return $this->json(
+                message: 'Login successful',
+                data: [
+                    'user' => $request->user(),
+                    'token' => $token->plainTextToken
+                ]
+            );
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return $this->json(
+            status: 401,
+            message: 'The provided credentials are incorrect.'
+        );
     }
 
     // Handle user registration
@@ -43,7 +52,14 @@ class AuthController extends Controller
         // Generate a new token for the user
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['token' => $token], 201);
+        return $this->json(
+            status: 201,
+            message: 'Registration successful',
+            data: [
+                'user' => $user,
+                'token' => $token
+            ]
+        );
     }
 
     // Handle user logout
@@ -52,6 +68,8 @@ class AuthController extends Controller
         // Revoke the user's token
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out successfully'], 200);
+        return $this->json(
+            message: 'Logout successful',
+        );
     }
 }
