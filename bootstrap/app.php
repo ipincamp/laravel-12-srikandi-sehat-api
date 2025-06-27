@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,7 +15,29 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+
+        $middleware->group('api', [
+            // Middleware lain untuk API bisa ditambahkan di sini, misalnya:
+            /*
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            */
+
+            // Tambahkan middleware Anda di sini
+            \App\Http\Middleware\EnsureJsonResponse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        /**
+         * Render sebuah MethodNotAllowedHttpException menjadi respons JSON.
+         */
+        $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Method {$request->getMethod()} is not allowed for this endpoint.",
+                ], 405);
+            }
+        });
     })->create();
