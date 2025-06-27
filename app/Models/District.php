@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class District extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['id', 'name'];
 
     /**
      * Get all of the villages for the District
