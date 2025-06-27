@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             ClassificationSeeder::class,
             DistrictSeeder::class,
+            VillageSeeder::class,
         ]);
     }
 }
