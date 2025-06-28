@@ -20,6 +20,7 @@ class UserProfile extends Model
         'user_id',
         'photo_path',
         'address', // Assuming 'address' is a foreign key to a 'villages' table
+        'phone',
         'date_of_birth',
         'height_cm',
         'weight_kg',
@@ -33,5 +34,15 @@ class UserProfile extends Model
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get the village that owns the UserProfile
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function village(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Village::class, 'address', 'id');
     }
 }

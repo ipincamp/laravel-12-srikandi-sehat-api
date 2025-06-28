@@ -36,6 +36,13 @@ class UpdateProfileRequest extends FormRequest
                 'unique:users,email,' . Auth::id(),
             ],
             // TODO: photo_path
+            // phone
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20',
+                'regex:/^(\+62|62|0)[0-9]{8,15}$/', // Indonesian phone number format
+            ],
             // address
             'address' => [
                 'nullable',

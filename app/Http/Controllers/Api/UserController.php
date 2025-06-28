@@ -49,24 +49,29 @@ class UserController extends Controller
         if (isset($validated['email'])) {
             $user->email = $validated['email'];
         }
-        if (isset($validated['address'])) {
-            $user->profile->address = $validated['address'];
-        }
-        if (isset($validated['date_of_birth'])) {
-            $user->profile->date_of_birth = $validated['date_of_birth'];
-        }
-        if (isset($validated['height_cm'])) {
-            $user->profile->height_cm = $validated['height_cm'];
-        }
-        if (isset($validated['weight_kg'])) {
-            $user->profile->weight_kg = $validated['weight_kg'];
-        }
+
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'height_cm' => $validated['height_cm'] ?? null,
+                'weight_kg' => $validated['weight_kg'] ?? null,
+            ]
+        );
 
         $user->save();
 
         return $this->json(
             message: 'Profile updated successfully',
-            data: $user->load('profile')
+            // TODO: use UserResource for consistent response
+            data: $user->load([
+                'roles',
+                'profile.village',
+                'profile.village.district',
+                'profile.village.classification',
+            ])
         );
     }
 
