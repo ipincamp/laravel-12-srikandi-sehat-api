@@ -69,6 +69,20 @@ class AuthController extends Controller
         );
     }
 
+    // Handle user registration locations retrieval
+    public function locations()
+    {
+        // https://github.com/emsifa/api-wilayah-indonesia
+        $districts = \App\Models\District::with('villages:id,code,name,district_id')->get(['id', 'name']);
+
+        return $this->json(
+            message: 'Districts retrieved successfully',
+            data: [
+                'districts' => $districts
+            ]
+        );
+    }
+
     // Handle user profile retrieval
     public function profile(AuthRequest $request)
     {
