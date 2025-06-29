@@ -1,0 +1,43 @@
+# --- File Konfigurasi Docker ---
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# --- Dependensi Lokal ---
+/vendor/
+/node_modules/
+
+# --- File Lingkungan (Environment) ---
+.env
+.env.example
+.env.testing
+
+# --- Log Lokal ---
+/storage/logs/*.log
+/laravel.log
+
+# --- Git ---
+.git/
+.gitignore
+.gitattributes
+
+# --- File IDE / Editor ---
+.vscode/
+.idea/
+*.sublime-*
+
+# --- File Sistem Operasi ---
+.DS_Store
+Thumbs.db
+
+# --- Cache & File Publikasi Lokal ---
+public/build/
+public/hot
+npm-debug.log
+yarn-error.log
+
+# --- File Testing & Lainnya ---
+phpunit.xml
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
