@@ -69,18 +69,6 @@ class AuthController extends Controller
         );
     }
 
-    // Handle user profile retrieval
-    public function profile(AuthRequest $request)
-    {
-        // Return the authenticated user's profile
-        return $this->json(
-            message: 'Profile retrieved successfully',
-            data: [
-                'user' => new UserResource($request->user()->load('roles'))
-            ]
-        );
-    }
-
     // Handle user logout
     public function logout(AuthRequest $request)
     {
