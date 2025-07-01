@@ -60,6 +60,24 @@ services:
     networks:
       - srikandisehat
 
+  #--- Layanan Webhook Listener ---#
+  webhook:
+    build:
+      context: ./docker/webhook
+      dockerfile: Dockerfile
+    container_name: srikandisehat-webhook
+    working_dir: /var/www
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/var/www
+      - ${SSH_AUTH_SOCK}:/ssh-agent
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
+    networks:
+      - srikandisehat
+
+
 #--- Jaringan & Volume ---#
 networks:
   srikandisehat:
