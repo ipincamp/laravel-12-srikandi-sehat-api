@@ -1,0 +1,70 @@
+services:
+  #--- Layanan Aplikasi Laravel (PHP-FPM) ---#
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+      args:
+        - user=${APP_USER}
+        - uid=${APP_UID}
+    container_name: srikandisehat_laravel
+    restart: unless-stopped
+    working_dir: /var/www
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www
+    networks:
+      - srikandisehat
+
+  #--- Layanan Web Server (Nginx) ---#
+  webserver:
+    image: nginx:1.28.0-alpine
+    container_name: srikandisehat_webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - srikandisehat
+
+  #--- Layanan Database (MariaDB) ---#
+  db:
+    image: mariadb:10.11.13
+    container_name: srikandisehat_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - srikandisehat
+
+  #--- Layanan phpMyAdmin ---#
+  phpmyadmin:
+    image: phpmyadmin:5.2.2
+    container_name: srikandisehat_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8001:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+    networks:
+      - srikandisehat
+
+#--- Jaringan & Volume ---#
+networks:
+  srikandisehat:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
