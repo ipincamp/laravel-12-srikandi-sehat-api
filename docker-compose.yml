@@ -7,11 +7,11 @@ services:
       args:
         - user=${APP_USER}
         - uid=${APP_UID}
-    container_name: srikandisehat_laravel
+    container_name: srikandisehat-laravel
     restart: unless-stopped
     working_dir: /var/www
     env_file:
-      - .env
+      - ./.env
     volumes:
       - ./:/var/www
     networks:
@@ -20,7 +20,7 @@ services:
   #--- Layanan Web Server (Nginx) ---#
   webserver:
     image: nginx:1.28.0-alpine
-    container_name: srikandisehat_webserver
+    container_name: srikandisehat-webserver
     restart: unless-stopped
     ports:
       - "8000:80"
@@ -33,7 +33,7 @@ services:
   #--- Layanan Database (MariaDB) ---#
   db:
     image: mariadb:10.11.13
-    container_name: srikandisehat_db
+    container_name: srikandisehat-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -41,14 +41,14 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - db_data:/var/lib/mysql
+      - srikandisehat-data:/var/lib/mysql
     networks:
       - srikandisehat
 
   #--- Layanan phpMyAdmin ---#
   phpmyadmin:
     image: phpmyadmin:5.2.2
-    container_name: srikandisehat_phpmyadmin
+    container_name: srikandisehat-phpmyadmin
     restart: unless-stopped
     ports:
       - "8001:80"
@@ -60,11 +60,29 @@ services:
     networks:
       - srikandisehat
 
+  #--- Layanan Webhook Listener ---#
+  webhook:
+    build:
+      context: ./docker/webhook
+      dockerfile: Dockerfile
+    container_name: srikandisehat-webhook
+    working_dir: /var/www
+    ports:
+      - "8002:8002"
+    volumes:
+      - .:/var/www
+      - ${SSH_AUTH_SOCK}:/ssh-agent
+    environment:
+      - SSH_AUTH_SOCK=/ssh-agent
+    networks:
+      - srikandisehat
+
+
 #--- Jaringan & Volume ---#
 networks:
   srikandisehat:
     driver: bridge
 
 volumes:
-  db_data:
+  srikandisehat-data:
     driver: local
