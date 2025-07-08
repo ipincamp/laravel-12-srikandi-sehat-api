@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\District;
-use App\Models\Regency; // <-- Tambahkan ini
+use App\Models\Regency;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // <-- Tambahkan ini
+use Illuminate\Support\Facades\DB;
 
 class DistrictSeeder extends Seeder
 {
@@ -14,7 +14,7 @@ class DistrictSeeder extends Seeder
      */
     public function run(): void
     {
-        $banyumasRegency = Regency::where('code', '3302')->first();
+        $banyumasRegency = DB::table('regencies')->where('code', '3302')->first();
 
         if (!$banyumasRegency) {
             $this->command->error('Regency with code 3302 (BANYUMAS) not found. Please run RegencySeeder first.');

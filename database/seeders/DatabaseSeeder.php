@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ClassificationSeeder::class,
             ProvinceSeeder::class,
             RegencySeeder::class,
-            // DistrictSeeder::class,
+            DistrictSeeder::class,
             // VillageSeeder::class,
         ]);
     }

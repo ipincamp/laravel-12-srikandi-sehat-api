@@ -21,7 +21,7 @@ class RegencySeeder extends Seeder
                 [
                     'province_id' => $jateng->id,
                     'code' => '3302',
-                    'name' => 'KABUPATEN BANYUMAS',
+                    'name' => 'BANYUMAS',
                     'created_at' => $now,
                     'updated_at' => $now,
                 ],
