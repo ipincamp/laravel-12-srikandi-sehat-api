@@ -18,9 +18,27 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // provinsi
+        Schema::create('provinces', function (Blueprint $table) {
+            $table->id();
+            $table->char('code', 2)->unique();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        // kabupaten
+        Schema::create('regencies', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('province_id')->constrained('provinces')->onDelete('cascade');
+            $table->char('code', 4)->unique(); // 2 digit provinsi + 2 digit kab
+            $table->string('name');
+            $table->timestamps();
+        });
+
         // kecamatan
         Schema::create('districts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('regency_id')->constrained('regencies')->onDelete('cascade');
             $table->string('name')->unique();
             $table->timestamps();
         });
@@ -42,6 +60,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('classifications');
+        Schema::dropIfExists('provinces');
+        Schema::dropIfExists('regencies');
         Schema::dropIfExists('districts');
         Schema::dropIfExists('villages');
     }
