@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\ClassificationsEnum;
-use App\Models\Classification;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class ClassificationSeeder extends Seeder
 {
@@ -13,7 +13,20 @@ class ClassificationSeeder extends Seeder
      */
     public function run(): void
     {
-        Classification::create(['name' => ClassificationsEnum::URBAN->value]);
-        Classification::create(['name' => ClassificationsEnum::RURAL->value]);
+        $now = now();
+        $classifications = [
+            [
+                'name' => ClassificationsEnum::URBAN->value,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'name' => ClassificationsEnum::RURAL->value,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ];
+
+        DB::table('classifications')->insert($classifications);
     }
 }

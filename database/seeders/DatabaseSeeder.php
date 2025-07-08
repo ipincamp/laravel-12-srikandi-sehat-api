@@ -19,9 +19,9 @@ class DatabaseSeeder extends Seeder
             // Classification and Location Seeders
             ClassificationSeeder::class,
             ProvinceSeeder::class,
-            RegencySeeder::class,
-            DistrictSeeder::class,
-            VillageSeeder::class,
+            // RegencySeeder::class,
+            // DistrictSeeder::class,
+            // VillageSeeder::class,
         ]);
     }
 }
