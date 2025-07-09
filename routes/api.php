@@ -1,20 +1,36 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\UserController;
+use Illuminate\Support\Facades\Route;
 
-// Authentication routes
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
+// Rute Publik (Authentication)
 Route::prefix('auth')->controller(AuthController::class)->group(function () {
     Route::post('login', 'login')->name('auth.login');
     Route::post('register', 'register')->name('auth.register');
-    Route::middleware('auth:sanctum')->post('logout', 'logout')->name('auth.logout');
 });
 
-// User routes
-Route::middleware('auth:sanctum')->prefix('me')->controller(UserController::class)->group(function () {
-    Route::get('locations', 'locations')->name('users.locations');
-    Route::get('/', 'profile')->name('users.profile');
-    Route::put('profile', 'updateProfile')->name('users.updateProfile');
-    Route::patch('password', 'changePassword')->name('users.changePassword');
+// Rute Lokasi (Umumnya Publik) - untuk dropdown alamat
+Route::prefix('locations')->group(function () {
+    Route::get('/provinces', [ProvinceController::class, '__invoke'])->name('locations.provinces');
+});
+
+// Rute yang Membutuhkan Autentikasi
+Route::middleware('auth:sanctum')->group(function () {
+    // User Profile
+    Route::prefix('me')->controller(UserController::class)->name('users.')->group(function () {
+        Route::get('/', 'profile')->name('profile');
+        Route::post('profile', 'updateProfile')->name('updateProfile');
+        Route::patch('password', 'changePassword')->name('changePassword');
+    });
+
+    // Logout
+    Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
