@@ -5,78 +5,110 @@ namespace App\Http\Controllers\Api;
 use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // Handle user login
-    public function login(LoginRequest $request)
+    /**
+     * Handle user login.
+     *
+     * @param  LoginRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
-        // Validate request data
-        $validated = $request->safe()->only(['email', 'password']);
+        try {
+            $credentials = $request->safe()->only(['email', 'password']);
 
-        // Attempt to log the user in
-        if (Auth::attempt($validated)) {
-            $user = $request->user()->load('roles');
+            if (!Auth::attempt($credentials)) {
+                return $this->json(
+                    status: 401,
+                    message: 'Invalid credentials. Please try again.'
+                );
+            }
 
-            // Generate a new token for the user
-            $token = $user->createToken('auth_token');
+            $user = User::where('email', $credentials['email'])->first();
+
+
+            $user->tokens()->where('name', 'auth_token')->delete();
+
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             return $this->json(
                 message: 'Login successful',
                 data: [
-                    'user' => new UserResource($user),
-                    'token' => $token->plainTextToken
+                    'user'  => new UserResource($user->load('roles')),
+                    'token' => $token
                 ]
             );
+        } catch (\Throwable $th) {
+            return $this->json(
+                status: 500,
+                message: 'An error occurred on the server. Please try again later.'
+            );
         }
-
-        return $this->json(
-            status: 401,
-            message: 'The provided credentials are incorrect.'
-        );
     }
 
-    // Handle user registration
-    public function register(RegisterRequest $request)
+    /**
+     * Handle user registration.
+     *
+     * @param  RegisterRequest  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function register(RegisterRequest $request): \Illuminate\Http\JsonResponse
     {
-        // Validate request data
-        $validated = $request->safe()->only(['name', 'email', 'password']);
+        try {
+            $validated = $request->safe()->only(['name', 'email', 'password']);
 
-        // Create a new user
-        $user = \App\Models\User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-        ]);
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+            ]);
 
-        // Assign the default role to the user
-        $user->assignRole(RolesEnum::USER);
+            $user->assignRole(RolesEnum::USER);
 
-        // Generate a new token for the user
-        $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-        return $this->json(
-            status: 201,
-            message: 'Registration successful',
-            data: [
-                'user' => new UserResource($user->load('roles')),
-                'token' => $token
-            ]
-        );
+            return $this->json(
+                status: 201,
+                message: 'Registration successful',
+                data: [
+                    'user' => new UserResource($user->load('roles')),
+                    'token' => $token
+                ]
+            );
+        } catch (\Throwable $th) {
+            return $this->json(
+                status: 500,
+                message: 'An error occurred on the server. Please try again later.'
+            );
+        }
     }
 
-    // Handle user logout
-    public function logout(AuthRequest $request)
+    /**
+     * Handle user logout.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request): \Illuminate\Http\JsonResponse
     {
-        // Revoke the user's token
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-        return $this->json(
-            message: 'Logout successful',
-        );
+            return $this->json(
+                message: 'Logout successful'
+            );
+        } catch (\Throwable $th) {
+            return $this->json(
+                status: 500,
+                message: 'An error occurred on the server. Please try again later.'
+            );
+        }
     }
 }

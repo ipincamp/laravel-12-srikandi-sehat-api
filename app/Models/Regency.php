@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class District extends Model
+class Regency extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,28 +12,28 @@ class District extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'regency_id',
+        'province_id',
         'code',
         'name',
     ];
 
     /**
-     * Get the regency that owns the District
+     * Get the province that owns the Regency
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function regency(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function province(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Regency::class);
+        return $this->belongsTo(Province::class);
     }
 
     /**
-     * Get all of the villages for the District
+     * Get all of the districts for the Regency
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function villages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function districts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Village::class);
+        return $this->hasMany(District::class);
     }
 }
