@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\RolesEnum;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -13,22 +13,16 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $now = now();
         $roles = [
-            [
-                'name' => RolesEnum::ADMIN->value,
-                'guard_name' => 'web',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => RolesEnum::USER->value,
-                'guard_name' => 'web',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+            ['name' => RolesEnum::ADMIN->value],
+            ['name' => RolesEnum::USER->value],
         ];
 
-        DB::table('roles')->insert($roles);
+        foreach ($roles as $role) {
+            Role::firstOrCreate(
+                ['name' => $role['name']],
+                ['guard_name' => 'web']
+            );
+        }
     }
 }
