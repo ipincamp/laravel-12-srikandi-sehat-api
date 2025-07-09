@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Village;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class VillageSeeder extends Seeder
 {
@@ -13,8 +14,43 @@ class VillageSeeder extends Seeder
     public function run(): void
     {
         $now = now();
+        $classifications = DB::table('classifications')
+            ->whereIn('name', ['Perdesaan', 'Perkotaan'])
+            ->pluck('id', 'name');
+        $districts = DB::table('districts')
+            ->whereIn('code', [
+                '3302010', // Lumbir
+                '3302020', // Wangon
+                '3302030', // Jatilawang
+                '3302040', // Rawalo
+                '3302050', // Kebasen
+                '3302060', // Kemranjen
+                '3302070', // Sumpiuh
+                '3302080', // Tambak
+                '3302090', // Somagede
+                '3302100', // Kalibagor
+                '3302110', // Banyumas
+                '3302120', // Patikraja
+                '3302130', // Purwojati
+                '3302140', // Ajibarang
+                '3302150', // Gumelar
+                '3302160', // Pekuncen
+                '3302170', // Cilongok
+                '3302180', // Karanglewas
+                '3302190', // Kedung Banteng
+                '3302200', // Baturraden
+                '3302210', // Sumbang
+                '3302220', // Kembaran
+                '3302230', // Sokaraja
+                '3302710', // Purwokerto Selatan
+                '3302720', // Purwokerto Barat
+                '3302730', // Purwokerto Timur
+                '3302740', // Purwokerto Utara
+            ])->pluck('id', 'code');
+        $perdesaanId = $classifications['Perdesaan'] ?? 2;
+        $perkotaanId = $classifications['Perkotaan'] ?? 1;
 
-        // District 10: Lumbir
+        // District 3302010: Lumbir
         $lumbir = [
             ['code' => '001', 'name' => 'CINGEBUL'],
             ['code' => '002', 'name' => 'KEDUNGGEDE'],
@@ -28,67 +64,73 @@ class VillageSeeder extends Seeder
             ['code' => '010', 'name' => 'DERMAJI'],
         ];
         foreach ($lumbir as &$v) {
-            $v['district_id'] = 10;
-            $v['classification_id'] = 2;
+            $v['code'] = '3302010' . $v['code'];
+            $v['district_id'] = $districts['3302010'];
+            // Default: Perdesaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perdesaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($lumbir);
 
-        // District 20: Wangon
+        // District 3302020: Wangon
         $wangon = [
             ['code' => '001', 'name' => 'RANDEGAN'],
             ['code' => '002', 'name' => 'RAWAHENG'],
-            ['code' => '003', 'name' => 'PANGADEGAN', 'classification_id' => 2],
+            ['code' => '003', 'name' => 'PANGADEGAN', 'classification_id' => $perdesaanId],
             ['code' => '004', 'name' => 'KLAPAGADING'],
             ['code' => '005', 'name' => 'KLAPAGADING KULON'],
             ['code' => '006', 'name' => 'WANGON'],
             ['code' => '007', 'name' => 'BANTERAN'],
             ['code' => '008', 'name' => 'JAMBU'],
-            ['code' => '009', 'name' => 'JURANGBAHAS', 'classification_id' => 2],
-            ['code' => '010', 'name' => 'CIKAKAK', 'classification_id' => 2],
+            ['code' => '009', 'name' => 'JURANGBAHAS', 'classification_id' => $perdesaanId],
+            ['code' => '010', 'name' => 'CIKAKAK', 'classification_id' => $perdesaanId],
             ['code' => '011', 'name' => 'WLAHAR'],
             ['code' => '012', 'name' => 'WINDUNEGARA'],
         ];
         foreach ($wangon as &$v) {
-            $v['district_id'] = 20;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302020' . $v['code'];
+            $v['district_id'] = $districts['3302020'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($wangon);
 
-        // District 30: Jatilawang
+        // District 3302030: Jatilawang
         $jatilawang = [
-            ['code' => '001', 'name' => 'GUNUNG WETAN', 'classification_id' => 2],
-            ['code' => '002', 'name' => 'PEKUNCEN', 'classification_id' => 2],
-            ['code' => '003', 'name' => 'KARANGLEWAS', 'classification_id' => 2],
-            ['code' => '004', 'name' => 'KARANGANYAR', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'GUNUNG WETAN', 'classification_id' => $perdesaanId],
+            ['code' => '002', 'name' => 'PEKUNCEN', 'classification_id' => $perdesaanId],
+            ['code' => '003', 'name' => 'KARANGLEWAS', 'classification_id' => $perdesaanId],
+            ['code' => '004', 'name' => 'KARANGANYAR', 'classification_id' => $perdesaanId],
             ['code' => '005', 'name' => 'MARGASANA'],
             ['code' => '006', 'name' => 'ADISARA'],
             ['code' => '007', 'name' => 'KEDUNGWRINGIN'],
-            ['code' => '008', 'name' => 'BANTAR', 'classification_id' => 2],
+            ['code' => '008', 'name' => 'BANTAR', 'classification_id' => $perdesaanId],
             ['code' => '009', 'name' => 'TINGGARJAYA'],
             ['code' => '010', 'name' => 'TUNJUNG'],
             ['code' => '011', 'name' => 'GENTAWANGI'],
         ];
         foreach ($jatilawang as &$v) {
-            $v['district_id'] = 30;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302030' . $v['code'];
+            $v['district_id'] = $districts['3302030'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($jatilawang);
 
-        // District 40: Rawalo
+        // District 3302040: Rawalo
         $rawalo = [
-            ['code' => '001', 'name' => 'LOSARI', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'LOSARI', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'MENGANTI'],
             ['code' => '003', 'name' => 'BANJARPARAKAN'],
             ['code' => '004', 'name' => 'RAWALO'],
@@ -96,20 +138,21 @@ class VillageSeeder extends Seeder
             ['code' => '006', 'name' => 'SIDAMULIH'],
             ['code' => '007', 'name' => 'PESAWAHAN'],
             ['code' => '008', 'name' => 'TIPAR'],
-            ['code' => '009', 'name' => 'SANGGREMAN', 'classification_id' => 2],
+            ['code' => '009', 'name' => 'SANGGREMAN', 'classification_id' => $perdesaanId],
         ];
         foreach ($rawalo as &$v) {
-            $v['district_id'] = 40;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302040' . $v['code'];
+            $v['district_id'] = $districts['3302040'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($rawalo);
 
-        // District 50: Kebasen
+        // District 3302050: Kebasen
         $kebasen = [
             ['code' => '001', 'name' => 'ADISANA'],
             ['code' => '002', 'name' => 'BANGSA'],
@@ -125,15 +168,18 @@ class VillageSeeder extends Seeder
             ['code' => '012', 'name' => 'MANDIRANCAN'],
         ];
         foreach ($kebasen as &$v) {
-            $v['district_id'] = 50;
-            // Default: Perkotaan (1)
-            $v['classification_id'] = 1;
+            $v['code'] = '3302050' . $v['code'];
+            $v['district_id'] = $districts['3302050'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($kebasen);
 
-        // District 60: Kemranjen
+        // District 3302060: Kemranjen
         $kemranjen = [
             ['code' => '001', 'name' => 'GRUJUGAN'],
             ['code' => '002', 'name' => 'SIRAU'],
@@ -141,62 +187,64 @@ class VillageSeeder extends Seeder
             ['code' => '004', 'name' => 'SIBRAMA'],
             ['code' => '005', 'name' => 'KEDUNGPRING'],
             ['code' => '006', 'name' => 'KECILA'],
-            ['code' => '007', 'name' => 'NUSAMANGIR', 'classification_id' => 2],
+            ['code' => '007', 'name' => 'NUSAMANGIR', 'classification_id' => $perdesaanId],
             ['code' => '008', 'name' => 'KARANGJATI'],
             ['code' => '009', 'name' => 'KEBARONGAN'],
             ['code' => '010', 'name' => 'SIDAMULYA'],
             ['code' => '011', 'name' => 'PAGERALANG'],
             ['code' => '012', 'name' => 'ALASMALANG'],
             ['code' => '013', 'name' => 'PETARANGAN'],
-            ['code' => '014', 'name' => 'KARANGGINTUNG', 'classification_id' => 2],
-            ['code' => '015', 'name' => 'KARANGSALAM', 'classification_id' => 2],
+            ['code' => '014', 'name' => 'KARANGGINTUNG', 'classification_id' => $perdesaanId],
+            ['code' => '015', 'name' => 'KARANGSALAM', 'classification_id' => $perdesaanId],
         ];
         foreach ($kemranjen as &$v) {
-            $v['district_id'] = 60;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302060' . $v['code'];
+            $v['district_id'] = $districts['3302060'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($kemranjen);
 
-        // District 70: Sumpiuh
+        // District 3302070: Sumpiuh
         $sumpiuh = [
             ['code' => '001', 'name' => 'PANDAK'],
             ['code' => '002', 'name' => 'KUNTILI'],
             ['code' => '003', 'name' => 'KEMIRI'],
-            ['code' => '004', 'name' => 'KARANGGEDANG', 'classification_id' => 2],
-            ['code' => '005', 'name' => 'NUSADADI', 'classification_id' => 2],
+            ['code' => '004', 'name' => 'KARANGGEDANG', 'classification_id' => $perdesaanId],
+            ['code' => '005', 'name' => 'NUSADADI', 'classification_id' => $perdesaanId],
             ['code' => '006', 'name' => 'SELANDAKA'],
             ['code' => '007', 'name' => 'SUMPIUH'],
             ['code' => '008', 'name' => 'KRADENAN'],
             ['code' => '009', 'name' => 'SELANEGARA'],
             ['code' => '010', 'name' => 'KEBOKURA'],
-            ['code' => '011', 'name' => 'LEBENG', 'classification_id' => 2],
+            ['code' => '011', 'name' => 'LEBENG', 'classification_id' => $perdesaanId],
             ['code' => '012', 'name' => 'KETANDA'],
-            ['code' => '013', 'name' => 'BANJARPANEPEN', 'classification_id' => 2],
+            ['code' => '013', 'name' => 'BANJARPANEPEN', 'classification_id' => $perdesaanId],
             ['code' => '014', 'name' => 'BOGANGIN'],
         ];
         foreach ($sumpiuh as &$v) {
-            $v['district_id'] = 70;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302070' . $v['code'];
+            $v['district_id'] = $districts['3302070'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($sumpiuh);
 
-        // District 80: Tambak
+        // District 3302080: Tambak
         $tambak = [
-            ['code' => '001', 'name' => 'PLANGKAPAN', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'PLANGKAPAN', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'GUMELAR LOR'],
             ['code' => '003', 'name' => 'GUMELAR KIDUL'],
             ['code' => '004', 'name' => 'KARANGPETIR'],
-            ['code' => '005', 'name' => 'GEBANGSARI', 'classification_id' => 2],
+            ['code' => '005', 'name' => 'GEBANGSARI', 'classification_id' => $perdesaanId],
             ['code' => '006', 'name' => 'KARANGPUCUNG'],
             ['code' => '007', 'name' => 'PREMBUN'],
             ['code' => '008', 'name' => 'PESANTREN'],
@@ -206,43 +254,45 @@ class VillageSeeder extends Seeder
             ['code' => '012', 'name' => 'WATUAGUNG'],
         ];
         foreach ($tambak as &$v) {
-            $v['district_id'] = 80;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302080' . $v['code'];
+            $v['district_id'] = $districts['3302080'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($tambak);
 
-        // District 90: Somagede
+        // District 3302090: Somagede
         $somagede = [
-            ['code' => '001', 'name' => 'TANGGERAN', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'TANGGERAN', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'SOKAWERA'],
             ['code' => '003', 'name' => 'SOMAGEDE'],
             ['code' => '004', 'name' => 'KLINTING'],
-            ['code' => '005', 'name' => 'KEMAWI', 'classification_id' => 2],
+            ['code' => '005', 'name' => 'KEMAWI', 'classification_id' => $perdesaanId],
             ['code' => '006', 'name' => 'PIASA KULON'],
             ['code' => '007', 'name' => 'KANDING'],
-            ['code' => '008', 'name' => 'SOMAKATON', 'classification_id' => 2],
-            ['code' => '009', 'name' => 'PLANA', 'classification_id' => 2],
+            ['code' => '008', 'name' => 'SOMAKATON', 'classification_id' => $perdesaanId],
+            ['code' => '009', 'name' => 'PLANA', 'classification_id' => $perdesaanId],
         ];
         foreach ($somagede as &$v) {
-            $v['district_id'] = 90;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302090' . $v['code'];
+            $v['district_id'] = $districts['3302090'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($somagede);
 
-        // District 100: Kalibagor
+        // District 3302100: Kalibagor
         $kalibagor = [
             ['code' => '001', 'name' => 'SROWOT'],
-            ['code' => '002', 'name' => 'SURO', 'classification_id' => 2],
+            ['code' => '002', 'name' => 'SURO', 'classification_id' => $perdesaanId],
             ['code' => '003', 'name' => 'KALIORI'],
             ['code' => '004', 'name' => 'WLAHAR WETAN'],
             ['code' => '005', 'name' => 'PEKAJA'],
@@ -255,19 +305,20 @@ class VillageSeeder extends Seeder
             ['code' => '012', 'name' => 'KALISOGRA WETAN'],
         ];
         foreach ($kalibagor as &$v) {
-            $v['district_id'] = 100;
-            // Default: Perkotaan (1)
+            $v['code'] = '3302100' . $v['code'];
+            $v['district_id'] = $districts['3302100'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($kalibagor);
 
-        // District 110: Banyumas
+        // District 3302110: Banyumas
         $banyumas = [
-            ['code' => '001', 'name' => 'BINANGUN', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'BINANGUN', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'PASINGGANGAN'],
             ['code' => '003', 'name' => 'KEDUNGGEDE'],
             ['code' => '004', 'name' => 'KARANGRAU'],
@@ -281,19 +332,21 @@ class VillageSeeder extends Seeder
             ['code' => '012', 'name' => 'PAPRINGAN'],
         ];
         foreach ($banyumas as &$v) {
-            $v['district_id'] = 110;
+            $v['code'] = '3302110' . $v['code'];
+            $v['district_id'] = $districts['3302110'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($banyumas);
 
-        // District 120: Patikraja
+        // District 3302120: Patikraja
         $patikraja = [
-            ['code' => '001', 'name' => 'SAWANGAN WETAN', 'classification_id' => 2],
-            ['code' => '002', 'name' => 'KARANGENDEP', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'SAWANGAN WETAN', 'classification_id' => $perdesaanId],
+            ['code' => '002', 'name' => 'KARANGENDEP', 'classification_id' => $perdesaanId],
             ['code' => '003', 'name' => 'NOTOG'],
             ['code' => '004', 'name' => 'PATIKRAJA'],
             ['code' => '005', 'name' => 'PEGALONGAN'],
@@ -307,44 +360,48 @@ class VillageSeeder extends Seeder
             ['code' => '013', 'name' => 'KEDUNGWRINGIN'],
         ];
         foreach ($patikraja as &$v) {
-            $v['district_id'] = 120;
+            $v['code'] = '3302120' . $v['code'];
+            $v['district_id'] = $districts['3302120'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($patikraja);
 
-        // District 130: Purwojati
+        // District 3302130: Purwojati
         $purwojati = [
-            ['code' => '001', 'name' => 'GERDUREN', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'GERDUREN', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'KARANGTALUN KIDUL'],
-            ['code' => '003', 'name' => 'KALIURIP', 'classification_id' => 2],
+            ['code' => '003', 'name' => 'KALIURIP', 'classification_id' => $perdesaanId],
             ['code' => '004', 'name' => 'KARANGTALUN LOR'],
             ['code' => '005', 'name' => 'PURWOJATI'],
             ['code' => '006', 'name' => 'KLAPASAWIT'],
-            ['code' => '007', 'name' => 'KARANGMANGU', 'classification_id' => 2],
-            ['code' => '008', 'name' => 'KALIPUTIH', 'classification_id' => 2],
-            ['code' => '009', 'name' => 'KALIWANGI', 'classification_id' => 2],
+            ['code' => '007', 'name' => 'KARANGMANGU', 'classification_id' => $perdesaanId],
+            ['code' => '008', 'name' => 'KALIPUTIH', 'classification_id' => $perdesaanId],
+            ['code' => '009', 'name' => 'KALIWANGI', 'classification_id' => $perdesaanId],
             ['code' => '010', 'name' => 'KALITAPEN'],
         ];
         foreach ($purwojati as &$v) {
-            $v['district_id'] = 130;
+            $v['code'] = '3302130' . $v['code'];
+            $v['district_id'] = $districts['3302130'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($purwojati);
 
-        // District 140: Ajibarang
+        // District 3302140: Ajibarang
         $ajibarang = [
-            ['code' => '001', 'name' => 'DARMAKRADENAN', 'classification_id' => 2],
+            ['code' => '001', 'name' => 'DARMAKRADENAN', 'classification_id' => $perdesaanId],
             ['code' => '002', 'name' => 'TIPARKIDUL'],
             ['code' => '003', 'name' => 'SAWANGAN'],
-            ['code' => '004', 'name' => 'JINGKANG', 'classification_id' => 2],
+            ['code' => '004', 'name' => 'JINGKANG', 'classification_id' => $perdesaanId],
             ['code' => '005', 'name' => 'BANJARSARI'],
             ['code' => '006', 'name' => 'KALIBENDA'],
             ['code' => '007', 'name' => 'PANCURENDANG'],
@@ -358,49 +415,53 @@ class VillageSeeder extends Seeder
             ['code' => '015', 'name' => 'CIBERUNG'],
         ];
         foreach ($ajibarang as &$v) {
-            $v['district_id'] = 140;
+            $v['code'] = '3302140' . $v['code'];
+            $v['district_id'] = $districts['3302140'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($ajibarang);
 
-        // District 150: Gumelar
+        // District 3302150: Gumelar
         $gumelar = [
             ['code' => '001', 'name' => 'CILANGKAP'],
             ['code' => '002', 'name' => 'CIHONJE'],
             ['code' => '003', 'name' => 'PANINGKABAN'],
             ['code' => '004', 'name' => 'KARANGKEMOJING'],
-            ['code' => '005', 'name' => 'GANCANG', 'classification_id' => 1],
-            ['code' => '006', 'name' => 'KEDUNGURANG', 'classification_id' => 1],
-            ['code' => '007', 'name' => 'GUMELAR', 'classification_id' => 1],
+            ['code' => '005', 'name' => 'GANCANG', 'classification_id' => $perkotaanId],
+            ['code' => '006', 'name' => 'KEDUNGURANG', 'classification_id' => $perkotaanId],
+            ['code' => '007', 'name' => 'GUMELAR', 'classification_id' => $perkotaanId],
             ['code' => '008', 'name' => 'TLAGA'],
             ['code' => '009', 'name' => 'SAMUDRA'],
             ['code' => '010', 'name' => 'SAMUDRA KULON'],
         ];
         foreach ($gumelar as &$v) {
-            $v['district_id'] = 150;
+            $v['code'] = '3302150' . $v['code'];
+            $v['district_id'] = $districts['3302150'];
+            // Default: Perdesaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 2;
+                $v['classification_id'] = $perdesaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($gumelar);
 
-        // District 160: Pekuncen
+        // District 3302160: Pekuncen
         $pekuncen = [
             ['code' => '001', 'name' => 'CIBANGKONG'],
-            ['code' => '002', 'name' => 'PETAHUNAN', 'classification_id' => 2],
-            ['code' => '003', 'name' => 'SEMEDO', 'classification_id' => 2],
+            ['code' => '002', 'name' => 'PETAHUNAN', 'classification_id' => $perdesaanId],
+            ['code' => '003', 'name' => 'SEMEDO', 'classification_id' => $perdesaanId],
             ['code' => '004', 'name' => 'CIKAWUNG'],
             ['code' => '005', 'name' => 'KARANGKLESEM'],
             ['code' => '006', 'name' => 'CANDINEGARA'],
             ['code' => '007', 'name' => 'CIKEMBULAN'],
             ['code' => '008', 'name' => 'TUMIYANG'],
-            ['code' => '009', 'name' => 'GLEMPANG', 'classification_id' => 2],
+            ['code' => '009', 'name' => 'GLEMPANG', 'classification_id' => $perdesaanId],
             ['code' => '010', 'name' => 'PEKUNCEN'],
             ['code' => '011', 'name' => 'PASIRAMAN LOR'],
             ['code' => '012', 'name' => 'PASIRAMAN KIDUL'],
@@ -410,20 +471,22 @@ class VillageSeeder extends Seeder
             ['code' => '016', 'name' => 'KRAJAN'],
         ];
         foreach ($pekuncen as &$v) {
-            $v['district_id'] = 160;
+            $v['code'] = '3302160' . $v['code'];
+            $v['district_id'] = $districts['3302160'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($pekuncen);
 
-        // District 170: Cilongok
+        // District 3302170: Cilongok
         $cilongok = [
             ['code' => '001', 'name' => 'BATUANTEN'],
             ['code' => '002', 'name' => 'KASEGERAN'],
-            ['code' => '003', 'name' => 'JATISABA', 'classification_id' => 2],
+            ['code' => '003', 'name' => 'JATISABA', 'classification_id' => $perdesaanId],
             ['code' => '004', 'name' => 'PANUSUPAN'],
             ['code' => '005', 'name' => 'PEJOGOL'],
             ['code' => '006', 'name' => 'PAGERAJI'],
@@ -437,22 +500,24 @@ class VillageSeeder extends Seeder
             ['code' => '014', 'name' => 'PANEMBANGAN'],
             ['code' => '015', 'name' => 'KARANGLO'],
             ['code' => '016', 'name' => 'KALISARI'],
-            ['code' => '017', 'name' => 'KARANGTENGAH', 'classification_id' => 2],
-            ['code' => '018', 'name' => 'SAMBIRATA', 'classification_id' => 2],
+            ['code' => '017', 'name' => 'KARANGTENGAH', 'classification_id' => $perdesaanId],
+            ['code' => '018', 'name' => 'SAMBIRATA', 'classification_id' => $perdesaanId],
             ['code' => '019', 'name' => 'GUNUNGLURAH'],
             ['code' => '020', 'name' => 'SOKAWERA'],
         ];
         foreach ($cilongok as &$v) {
-            $v['district_id'] = 170;
+            $v['code'] = '3302170' . $v['code'];
+            $v['district_id'] = $districts['3302170'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($cilongok);
 
-        // District 180: Karanglewas
+        // District 3302180: Karanglewas
         $karanglewas = [
             ['code' => '001', 'name' => 'KEDIRI'],
             ['code' => '002', 'name' => 'PANGEBATAN'],
@@ -469,15 +534,19 @@ class VillageSeeder extends Seeder
             ['code' => '013', 'name' => 'SUNYALANGU'],
         ];
         foreach ($karanglewas as &$v) {
-            $v['district_id'] = 180;
-            $v['classification_id'] = 1; // Perkotaan
+            $v['code'] = '3302180' . $v['code'];
+            $v['district_id'] = $districts['3302180'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($karanglewas);
 
-        // District 190: Kedung Banteng
-        $kedungbanteng = [
+        // District 3302190: Kedung Banteng
+        $kedungBanteng = [
             ['code' => '001', 'name' => 'KEDUNGBANTENG'],
             ['code' => '002', 'name' => 'KEBOCORAN'],
             ['code' => '003', 'name' => 'KARANGSALAM KIDUL'],
@@ -486,24 +555,26 @@ class VillageSeeder extends Seeder
             ['code' => '006', 'name' => 'KENITEN'],
             ['code' => '007', 'name' => 'DAWUHAN WETAN'],
             ['code' => '008', 'name' => 'DAWUHAN KULON'],
-            ['code' => '009', 'name' => 'BASEH', 'classification_id' => 2],
-            ['code' => '010', 'name' => 'KALISALAK', 'classification_id' => 2],
-            ['code' => '011', 'name' => 'WINDUJAYA', 'classification_id' => 2],
-            ['code' => '012', 'name' => 'KALIKESUR', 'classification_id' => 2],
+            ['code' => '009', 'name' => 'BASEH', 'classification_id' => $perdesaanId],
+            ['code' => '010', 'name' => 'KALISALAK', 'classification_id' => $perdesaanId],
+            ['code' => '011', 'name' => 'WINDUJAYA', 'classification_id' => $perdesaanId],
+            ['code' => '012', 'name' => 'KALIKESUR', 'classification_id' => $perdesaanId],
             ['code' => '013', 'name' => 'KUTALIMAN'],
-            ['code' => '014', 'name' => 'MELUNG', 'classification_id' => 2],
+            ['code' => '014', 'name' => 'MELUNG', 'classification_id' => $perdesaanId],
         ];
-        foreach ($kedungbanteng as &$v) {
-            $v['district_id'] = 190;
+        foreach ($kedungBanteng as &$v) {
+            $v['code'] = '3302190' . $v['code'];
+            $v['district_id'] = $districts['3302190'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
-        Village::insert($kedungbanteng);
+        Village::insert($kedungBanteng);
 
-        // District 200: Baturraden
+        // // District 3302200: Baturraden
         $baturraden = [
             ['code' => '001', 'name' => 'PURWOSARI'],
             ['code' => '002', 'name' => 'KUTASARI'],
@@ -519,19 +590,23 @@ class VillageSeeder extends Seeder
             ['code' => '012', 'name' => 'KETENGER'],
         ];
         foreach ($baturraden as &$v) {
-            $v['district_id'] = 200;
-            $v['classification_id'] = 1; // Perkotaan
+            $v['code'] = '3302200' . $v['code'];
+            $v['district_id'] = $districts['3302200'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($baturraden);
 
-        // District 210: Sumbang
+        // District 3302210: Sumbang
         $sumbang = [
             ['code' => '001', 'name' => 'KARANGGINTUNG'],
             ['code' => '002', 'name' => 'TAMBAKSOGRA'],
             ['code' => '003', 'name' => 'KARANGCEGAK'],
-            ['code' => '004', 'name' => 'KARANGTURI', 'classification_id' => 2],
+            ['code' => '004', 'name' => 'KARANGTURI', 'classification_id' => $perdesaanId],
             ['code' => '005', 'name' => 'SILADO'],
             ['code' => '006', 'name' => 'SUSUKAN'],
             ['code' => '007', 'name' => 'SUMBANG'],
@@ -545,20 +620,22 @@ class VillageSeeder extends Seeder
             ['code' => '015', 'name' => 'SIKAPAT'],
             ['code' => '016', 'name' => 'GANDATAPA'],
             ['code' => '017', 'name' => 'KOTAYASA'],
-            ['code' => '018', 'name' => 'LIMPAKUWUS', 'classification_id' => 2],
+            ['code' => '018', 'name' => 'LIMPAKUWUS', 'classification_id' => $perdesaanId],
             ['code' => '019', 'name' => 'KEDUNG MALANG'],
         ];
         foreach ($sumbang as &$v) {
-            $v['district_id'] = 210;
+            $v['code'] = '3302210' . $v['code'];
+            $v['district_id'] = $districts['3302210'];
+            // Default: Perkotaan
             if (!isset($v['classification_id'])) {
-                $v['classification_id'] = 1;
+                $v['classification_id'] = $perkotaanId;
             }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($sumbang);
 
-        // District 220: Kembaran
+        // District 3302220: Kembaran
         $kembaran = [
             ['code' => '001', 'name' => 'LEDUG'],
             ['code' => '002', 'name' => 'PLIKEN'],
@@ -578,14 +655,18 @@ class VillageSeeder extends Seeder
             ['code' => '016', 'name' => 'LINGGASARI'],
         ];
         foreach ($kembaran as &$v) {
-            $v['district_id'] = 220;
-            $v['classification_id'] = 1;
+            $v['code'] = '3302220' . $v['code'];
+            $v['district_id'] = $districts['3302220'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($kembaran);
 
-        // District 230: Sokaraja
+        // District 3302230: Sokaraja
         $sokaraja = [
             ['code' => '001', 'name' => 'KALIKIDANG'],
             ['code' => '002', 'name' => 'SOKARAJA TENGAH'],
@@ -607,15 +688,19 @@ class VillageSeeder extends Seeder
             ['code' => '018', 'name' => 'KARANGRAU'],
         ];
         foreach ($sokaraja as &$v) {
-            $v['district_id'] = 230;
-            $v['classification_id'] = 1;
+            $v['code'] = '3302230' . $v['code'];
+            $v['district_id'] = $districts['3302230'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
         Village::insert($sokaraja);
 
-        // District 710: Purwokerto Selatan
-        $purwokerto_selatan = [
+        // District 3302710: Purwokerto Selatan
+        $purwokertoSelatan = [
             ['code' => '001', 'name' => 'KARANGKLESEM'],
             ['code' => '002', 'name' => 'TELUK'],
             ['code' => '003', 'name' => 'BERKOH'],
@@ -624,16 +709,20 @@ class VillageSeeder extends Seeder
             ['code' => '006', 'name' => 'KARANGPUCUNG'],
             ['code' => '007', 'name' => 'TANJUNG'],
         ];
-        foreach ($purwokerto_selatan as &$v) {
-            $v['district_id'] = 710;
-            $v['classification_id'] = 1;
+        foreach ($purwokertoSelatan as &$v) {
+            $v['code'] = '3302710' . $v['code'];
+            $v['district_id'] = $districts['3302710'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
-        Village::insert($purwokerto_selatan);
+        Village::insert($purwokertoSelatan);
 
-        // District 720: Purwokerto Barat
-        $purwokerto_barat = [
+        // District 3302720: Purwokerto Barat
+        $purwokertoBarat = [
             ['code' => '001', 'name' => 'KARANGLEWAS LOR'],
             ['code' => '002', 'name' => 'PASIR KIDUL'],
             ['code' => '003', 'name' => 'REJASARI'],
@@ -642,16 +731,20 @@ class VillageSeeder extends Seeder
             ['code' => '006', 'name' => 'KOBER'],
             ['code' => '007', 'name' => 'KEDUNGWULUH'],
         ];
-        foreach ($purwokerto_barat as &$v) {
-            $v['district_id'] = 720;
-            $v['classification_id'] = 1;
+        foreach ($purwokertoBarat as &$v) {
+            $v['code'] = '3302720' . $v['code'];
+            $v['district_id'] = $districts['3302720'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
-        Village::insert($purwokerto_barat);
+        Village::insert($purwokertoBarat);
 
-        // District 730: Purwokerto Timur
-        $purwokerto_timur = [
+        // District 3302730: Purwokerto Timur
+        $purwokertoTimur = [
             ['code' => '001', 'name' => 'SOKANEGARA'],
             ['code' => '002', 'name' => 'KRANJI'],
             ['code' => '003', 'name' => 'PURWOKERTO LOR'],
@@ -659,16 +752,20 @@ class VillageSeeder extends Seeder
             ['code' => '005', 'name' => 'MERSI'],
             ['code' => '006', 'name' => 'ARCAWINANGUN'],
         ];
-        foreach ($purwokerto_timur as &$v) {
-            $v['district_id'] = 730;
-            $v['classification_id'] = 1;
+        foreach ($purwokertoTimur as &$v) {
+            $v['code'] = '3302730' . $v['code'];
+            $v['district_id'] = $districts['3302730'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
-        Village::insert($purwokerto_timur);
+        Village::insert($purwokertoTimur);
 
-        // District 740: Purwokerto Utara
-        $purwokerto_utara = [
+        // District 3302740: Purwokerto Utara
+        $purwokertoUtara = [
             ['code' => '001', 'name' => 'BOBOSAN'],
             ['code' => '002', 'name' => 'PURWANEGARA'],
             ['code' => '003', 'name' => 'BANCARKEMBAR'],
@@ -677,12 +774,16 @@ class VillageSeeder extends Seeder
             ['code' => '006', 'name' => 'GRENDENG'],
             ['code' => '007', 'name' => 'KARANGWANGKAL'],
         ];
-        foreach ($purwokerto_utara as &$v) {
-            $v['district_id'] = 740;
-            $v['classification_id'] = 1;
+        foreach ($purwokertoUtara as &$v) {
+            $v['code'] = '3302740' . $v['code'];
+            $v['district_id'] = $districts['3302740'];
+            // Default: Perkotaan
+            if (!isset($v['classification_id'])) {
+                $v['classification_id'] = $perkotaanId;
+            }
             $v['created_at'] = $now;
             $v['updated_at'] = $now;
         }
-        Village::insert($purwokerto_utara);
+        Village::insert($purwokertoUtara);
     }
 }
