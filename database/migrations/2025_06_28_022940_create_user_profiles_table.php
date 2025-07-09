@@ -16,9 +16,13 @@ return new class extends Migration
             $table->string('photo_path')->nullable();
             $table->foreignId('village_id')->nullable()->constrained('villages', 'id')->onDelete('set null');
             $table->string('phone')->nullable();
-            $table->date('date_of_birth')->nullable();
-            $table->unsignedSmallInteger('height_cm')->nullable();
+            $table->date('birthdate')->nullable();
+            $table->decimal('height_m', 3, 2)->unsigned()->nullable();
             $table->decimal('weight_kg', 5, 2)->unsigned()->nullable();
+            $table->string('last_education')->nullable();
+            $table->string('last_parent_education')->nullable();
+            $table->enum('internet_access', ['wifi', 'seluler'])->nullable();
+            $table->date('first_menstruation')->nullable();
             $table->timestamps();
         });
     }
