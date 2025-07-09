@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Locations\DistrictController;
 use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\Locations\RegencyController;
 use App\Http\Controllers\Api\UserController;
@@ -22,6 +23,7 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 Route::prefix('locations')->group(function () {
     Route::get('/provinces', [ProvinceController::class, '__invoke'])->name('locations.provinces');
     Route::get('/provinces/{province}/regencies', [RegencyController::class, '__invoke'])->name('locations.regencies');
+    Route::get('/regencies/{regency}/districts', [DistrictController::class, '__invoke'])->name('locations.districts');
 });
 
 // Rute yang Membutuhkan Autentikasi
