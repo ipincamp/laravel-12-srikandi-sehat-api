@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Locations\ProvinceController;
+use App\Http\Controllers\Api\Locations\RegencyController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,7 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 // Rute Lokasi (Umumnya Publik) - untuk dropdown alamat
 Route::prefix('locations')->group(function () {
     Route::get('/provinces', [ProvinceController::class, '__invoke'])->name('locations.provinces');
+    Route::get('/provinces/{province}/regencies', [RegencyController::class, '__invoke'])->name('locations.regencies');
 });
 
 // Rute yang Membutuhkan Autentikasi
