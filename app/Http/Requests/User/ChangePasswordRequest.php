@@ -4,6 +4,7 @@ namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class ChangePasswordRequest extends FormRequest
 {
@@ -26,20 +27,16 @@ class ChangePasswordRequest extends FormRequest
             'old_password' => [
                 'required',
                 'string',
-                'min:8',
-                'max:255',
-                function ($attribute, $value, $fail) {
-                    if (!Auth::check() || !Auth::user()->password || !password_verify($value, Auth::user()->password)) {
-                        $fail('The old password is incorrect.');
-                    }
-                },
+                'current_password'
             ],
             'new_password' => [
                 'required',
-                'string',
-                'min:8',
-                'max:255',
                 'confirmed',
+                Password::min(8)
+                    ->letters()
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols()
             ],
         ];
     }

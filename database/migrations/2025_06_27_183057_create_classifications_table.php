@@ -13,14 +13,33 @@ return new class extends Migration
     {
         // klasifikasi
         Schema::create('classifications', function (Blueprint $table) {
-            $table->id();
+            $table->tinyIncrements('id');
             $table->enum('name', ['Perdesaan', 'Perkotaan'])->unique();
+            $table->timestamps();
+        });
+
+        // provinsi
+        Schema::create('provinces', function (Blueprint $table) {
+            $table->id();
+            $table->char('code', 2)->unique(); // 2 digit prov
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        // kabupaten
+        Schema::create('regencies', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('province_id')->constrained()->onDelete('cascade');
+            $table->char('code', 4)->unique(); // 2 digit prov + 2 digit kab
+            $table->string('name');
             $table->timestamps();
         });
 
         // kecamatan
         Schema::create('districts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('regency_id')->constrained()->onDelete('cascade');
+            $table->char('code', 7); // 4 digit kab + 3 digit kec
             $table->string('name')->unique();
             $table->timestamps();
         });
@@ -28,10 +47,13 @@ return new class extends Migration
         // desa
         Schema::create('villages', function (Blueprint $table) {
             $table->id();
-            $table->char('code', 3);
+            $table->foreignId('district_id')->constrained()->onDelete('cascade');
+
+            $table->unsignedTinyInteger('classification_id');
+            $table->foreign('classification_id')->references('id')->on('classifications');
+
+            $table->char('code', 11)->unique(); // 7 digit kec + 4 digit desa
             $table->string('name');
-            $table->foreignId('district_id')->constrained('districts')->onDelete('cascade');
-            $table->foreignId('classification_id')->constrained('classifications')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -42,6 +64,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('classifications');
+        Schema::dropIfExists('provinces');
+        Schema::dropIfExists('regencies');
         Schema::dropIfExists('districts');
         Schema::dropIfExists('villages');
     }

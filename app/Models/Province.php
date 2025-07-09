@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Classification extends Model
+class Province extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -12,16 +12,17 @@ class Classification extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'code',
         'name',
     ];
 
     /**
-     * Get all of the villages for the Classification
+     * Get all of the regencies for the Province
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function villages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function regencies(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Village::class);
+        return $this->hasMany(Regency::class);
     }
 }
