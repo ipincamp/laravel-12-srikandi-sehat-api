@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ClassificationsEnum;
 use App\Models\Village;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -52,8 +53,8 @@ class VillageSeeder extends Seeder
 
         $districts = DB::table('districts')->whereIn('code', $districtCodes)->pluck('id', 'code');
 
-        $perdesaanId = $classifications['Perdesaan'] ?? 2;
-        $perkotaanId = $classifications['Perkotaan'] ?? 1;
+        $perdesaanId = $classifications[ClassificationsEnum::RURAL->value] ?? 2;
+        $perkotaanId = $classifications[ClassificationsEnum::URBAN->value] ?? 1;
 
         $districtVillages = [
             '3302010' => ['default' => $perdesaanId, 'villages' => [['code' => '001', 'name' => 'CINGEBUL'], ['code' => '002', 'name' => 'KEDUNGGEDE'], ['code' => '003', 'name' => 'CIDORA'], ['code' => '004', 'name' => 'BESUKI'], ['code' => '005', 'name' => 'PARUNGKAMAL'], ['code' => '006', 'name' => 'CIRAHAB'], ['code' => '007', 'name' => 'CANDUK'], ['code' => '008', 'name' => 'KARANGGAYAM'], ['code' => '009', 'name' => 'LUMBIR'], ['code' => '010', 'name' => 'DERMAJI']]],

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Locations\DistrictController;
 use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\Locations\RegencyController;
+use App\Http\Controllers\Api\Locations\VillageController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::prefix('locations')->group(function () {
     Route::get('/provinces', [ProvinceController::class, '__invoke'])->name('locations.provinces');
     Route::get('/provinces/{province}/regencies', [RegencyController::class, '__invoke'])->name('locations.regencies');
     Route::get('/regencies/{regency}/districts', [DistrictController::class, '__invoke'])->name('locations.districts');
+    Route::get('/districts/{districtCode}/villages', [VillageController::class, '__invoke'])->name('locations.villages');
 });
 
 // Rute yang Membutuhkan Autentikasi
