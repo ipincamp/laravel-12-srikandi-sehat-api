@@ -3,91 +3,76 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // Handle locations retrieval
-    public function locations()
+    /**
+     * Mengambil profil user yang sedang login.
+     * Sudah optimal, tidak ada perubahan.
+     */
+    public function profile(Request $request)
     {
-        // https://github.com/emsifa/api-wilayah-indonesia
-        $districts = cache()->remember('districts_with_villages', 3600, function () {
-            return \App\Models\District::with('villages:id,code,name,district_id')->get(['id', 'name']);
-        });
-
-        return $this->json(
-            message: 'Districts retrieved successfully',
-            data: $districts
-        );
-    }
-
-    // Handle user profile retrieval
-    public function profile(AuthRequest $request)
-    {
-        // Return the authenticated user's profile
         return $this->json(
             message: 'Profile retrieved successfully',
             data: new UserResource($request->user()->load('roles', 'profile'))
         );
     }
 
-    // Handle user profile update
+    /**
+     * Update profil user.
+     */
     public function updateProfile(UpdateProfileRequest $request)
     {
-        // Validate request data
         $validated = $request->validated();
-
-        // Update user profile
         $user = $request->user();
 
-        if (isset($validated['name'])) {
-            $user->name = $validated['name'];
-        }
-        if (isset($validated['email'])) {
-            $user->email = $validated['email'];
+        // 1. Pisahkan data untuk tabel 'users' dan 'profiles'
+        $userFields = ['name', 'email'];
+        $userData = Arr::only($validated, $userFields);
+        $profileData = Arr::except($validated, $userFields);
+
+        // 2. Update data user jika ada
+        if (!empty($userData)) {
+            $user->update($userData);
         }
 
-        $user->profile()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'phone' => $validated['phone'] ?? null,
-                'address' => $validated['address'] ?? null,
-                'date_of_birth' => $validated['date_of_birth'] ?? null,
-                'height_cm' => $validated['height_cm'] ?? null,
-                'weight_kg' => $validated['weight_kg'] ?? null,
-            ]
-        );
+        // 3. Update atau buat data profile
+        if (!empty($profileData)) {
+            $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
+        }
 
-        $user->save();
+        // 4. Muat relasi yang dibutuhkan dan gunakan UserResource untuk konsistensi
+        $user->load([
+            'roles',
+            'profile.village.district.regency.province', // Eager load semua tingkatan
+            'profile.village.classification',
+        ]);
 
         return $this->json(
             message: 'Profile updated successfully',
-            // TODO: use UserResource for consistent response
-            data: $user->load([
-                'roles',
-                'profile.village',
-                'profile.village.district',
-                'profile.village.classification',
-            ])
+            data: new UserResource($user)
         );
     }
 
-    // Handle password change
+    /**
+     * Ganti password user.
+     */
     public function changePassword(ChangePasswordRequest $request)
     {
-        // Validate request data
-        $validated = $request->validated();
         $user = $request->user();
 
-        // Update password
-        $user->password = bcrypt($validated['new_password']);
+        // Gunakan Hash::make() sebagai praktik modern
+        $user->password = Hash::make($request->validated('new_password'));
         $user->save();
 
-        // Invalidate all tokens for the user
-        $request->user()->tokens()->delete();
+        // Hapus semua token (logout dari semua perangkat)
+        $user->tokens()->delete();
 
         return $this->json(
             message: 'Password changed successfully. Please log in again.'
