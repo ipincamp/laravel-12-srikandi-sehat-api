@@ -15,7 +15,6 @@ class UserController extends Controller
 {
     /**
      * Mengambil profil user yang sedang login.
-     * Sudah optimal, tidak ada perubahan.
      */
     public function profile(Request $request)
     {
@@ -33,17 +32,14 @@ class UserController extends Controller
         $validated = $request->validated();
         $user = $request->user();
 
-        // 1. Pisahkan data untuk tabel 'users' dan 'profiles'
         $userFields = ['name', 'email'];
         $userData = Arr::only($validated, $userFields);
         $profileData = Arr::except($validated, $userFields);
 
-        // 2. Update data user jika ada
         if (!empty($userData)) {
             $user->update($userData);
         }
 
-        // 3. Update atau buat data profile
         if (!empty($profileData)) {
             $address = Village::where('code', $profileData['address'])->first();
             $user->profile()->updateOrCreate(
@@ -65,17 +61,15 @@ class UserController extends Controller
             );
         }
 
-        // 4. Muat relasi yang dibutuhkan dan gunakan UserResource untuk konsistensi
         $user->load([
             'roles',
-            'profile.village.district.regency.province', // Eager load semua tingkatan
+            'profile.village.district.regency.province',
             'profile.village.classification',
         ]);
 
         return $this->json(
             message: 'Profile updated successfully',
-            data: $user
-            // data: new UserResource($user)
+            data: new UserResource($user)
         );
     }
 
@@ -86,11 +80,9 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Gunakan Hash::make() sebagai praktik modern
         $user->password = Hash::make($request->validated('new_password'));
         $user->save();
 
-        // Hapus semua token (logout dari semua perangkat)
         $user->tokens()->delete();
 
         return $this->json(
