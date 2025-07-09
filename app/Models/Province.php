@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Province extends Model
 {
-    protected $fillable = ['code', 'name'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'code',
+        'name',
+    ];
 
     /**
      * Get all of the regencies for the Province

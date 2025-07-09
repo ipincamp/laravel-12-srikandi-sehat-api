@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Regency extends Model
 {
-    protected $fillable = ['province_id', 'code', 'name'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'province_id',
+        'code',
+        'name',
+    ];
 
     /**
      * Get the province that owns the Regency

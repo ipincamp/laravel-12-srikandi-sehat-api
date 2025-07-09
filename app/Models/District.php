@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class District extends Model
 {
-    protected $fillable = ['id', 'name', 'regency_id'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'regency_id',
+        'code',
+        'name',
+    ];
 
     /**
      * Get the regency that owns the District
