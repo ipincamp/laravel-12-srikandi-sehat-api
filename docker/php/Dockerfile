@@ -33,7 +33,7 @@ RUN docker-php-ext-install \
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.8.3 /usr/bin/composer /usr/bin/composer
 
 COPY --from=node_builder /usr/local/ /usr/local/
 
