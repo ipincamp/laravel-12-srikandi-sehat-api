@@ -53,29 +53,57 @@ class UpdateProfileRequest extends FormRequest
             // address
             'address' => [
                 'sometimes',
-                'nullable',
-                'exists:villages,id'
+                'required',
+                'exists:villages,code'
             ],
             // date_of_birth
-            'date_of_birth' => [
+            'birthdate' => [
                 'sometimes',
                 'nullable',
                 'date',
                 'before_or_equal:today'
             ],
-            // height_cm
-            'height_cm' => [
+            // tinggi badan dalam meter
+            'tb_m' => [
+                'sometimes',
+                'nullable',
+                'numeric',
+                'between:0.1,3.0'
+            ],
+            // berat badan dalam kilogram
+            'bb_kg' => [
                 'sometimes',
                 'nullable',
                 'numeric',
                 'min:0'
             ],
-            // weight_kg
-            'weight_kg' => [
+            // education
+            'edu_now' => [
                 'sometimes',
                 'nullable',
-                'numeric',
-                'min:0'
+                'string',
+                'max:255'
+            ],
+            // parent education
+            'edu_parent' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            // internet access (wifi / seluler)
+            'inet_access' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'in:wifi,seluler'
+            ],
+            // first haid
+            'first_haid' => [
+                'sometimes',
+                'nullable',
+                'date',
+                'before_or_equal:today'
             ],
         ];
     }

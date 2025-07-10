@@ -34,7 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('me')->controller(UserController::class)->name('users.')->group(function () {
         Route::get('/', 'profile')->name('profile');
         Route::post('profile', 'updateProfile')->name('updateProfile');
-        Route::patch('password', 'changePassword')->name('changePassword');
+        Route::post('password', 'changePassword')->name('changePassword');
     });
 
     // Logout

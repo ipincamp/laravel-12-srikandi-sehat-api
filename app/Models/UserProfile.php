@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserProfile extends Model
 {
-    // Tentukan primary key dan tipenya jika bukan 'id' auto-increment
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
@@ -19,11 +18,15 @@ class UserProfile extends Model
     protected $fillable = [
         'user_id',
         'photo_path',
-        'address', // Assuming 'address' is a foreign key to a 'villages' table
+        'village_id',
         'phone',
-        'date_of_birth',
-        'height_cm',
+        'birthdate',
+        'height_m',
         'weight_kg',
+        'last_education',
+        'last_parent_education',
+        'internet_access',
+        'first_menstruation',
     ];
 
     /**
@@ -33,7 +36,7 @@ class UserProfile extends Model
      */
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     /**
@@ -43,6 +46,6 @@ class UserProfile extends Model
      */
     public function village(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Village::class, 'address', 'id');
+        return $this->belongsTo(Village::class);
     }
 }
