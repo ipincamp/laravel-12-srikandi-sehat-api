@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Locations;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Location\DistrictResource;
 use App\Models\Regency;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,7 +20,7 @@ class DistrictController extends Controller
 
         return $this->json(
             message: 'Districts retrieved successfully',
-            data: $districts
+            data: DistrictResource::collection($districts)
         );
     }
 }

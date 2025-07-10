@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Locations;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Location\VillageResource;
 use App\Models\Village;
 use Illuminate\Support\Facades\Cache;
 
@@ -34,7 +35,7 @@ class VillageController extends Controller
 
         return $this->json(
             message: 'Villages retrieved successfully',
-            data: $villages
+            data: VillageResource::collection($villages)
         );
     }
 }

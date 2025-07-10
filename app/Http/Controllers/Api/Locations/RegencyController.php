@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Locations;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Location\RegencyResource;
 use App\Models\Province;
 use Illuminate\Support\Facades\Cache;
 
@@ -19,7 +20,7 @@ class RegencyController extends Controller
 
         return $this->json(
             message: 'Regencies retrieved successfully',
-            data: $regencies
+            data: RegencyResource::collection($regencies)
         );
     }
 }
