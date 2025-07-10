@@ -34,22 +34,25 @@ class AuthController extends Controller
 
             $user = User::where('email', $credentials['email'])->first();
 
+            $user->load([
+                'roles',
+                'profile.village.district.regency.province',
+                'profile.village.classification',
+            ]);
 
             $user->tokens()->where('name', 'auth_token')->delete();
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return $this->json(
-                message: 'Login successful',
+                message: 'Login successful. Other sessions have been logged out.',
                 data: [
-                    'user'  => new UserResource(
-                        $user->load(['roles', 'profile'])
-                    ),
+                    'user'  => new UserResource($user),
                     'token' => $token
                 ]
             );
         } catch (\Throwable $th) {
-            Log::error('Registration error: ' . $th->getMessage());
+            Log::error('Login error: ' . $th->getMessage());
             return $this->json(
                 status: 500,
                 message: 'An error occurred on the server. Please try again later.'
@@ -75,6 +78,11 @@ class AuthController extends Controller
             ]);
 
             $user->assignRole(RolesEnum::USER);
+            $user->load([
+                'roles',
+                'profile.village.district.regency.province',
+                'profile.village.classification',
+            ]);
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -82,9 +90,7 @@ class AuthController extends Controller
                 status: 201,
                 message: 'Registration successful',
                 data: [
-                    'user' => new UserResource(
-                        $user->load(['roles', 'profile'])
-                    ),
+                    'user' => new UserResource($user),
                     'token' => $token
                 ]
             );
@@ -112,7 +118,7 @@ class AuthController extends Controller
                 message: 'Logout successful'
             );
         } catch (\Throwable $th) {
-            Log::error('Registration error: ' . $th->getMessage());
+            Log::error('Logout error: ' . $th->getMessage());
             return $this->json(
                 status: 500,
                 message: 'An error occurred on the server. Please try again later.'
