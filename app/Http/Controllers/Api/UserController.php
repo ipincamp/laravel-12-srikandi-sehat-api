@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -18,9 +18,16 @@ class UserController extends Controller
      */
     public function profile(Request $request)
     {
+        $user = $request->user();
+        $user->load([
+            'roles',
+            'profile.village.district.regency.province',
+            'profile.village.classification',
+        ]);
+
         return $this->json(
             message: 'Profile retrieved successfully',
-            data: new UserResource($request->user()->load('roles', 'profile'))
+            data: new UserResource($user)
         );
     }
 
