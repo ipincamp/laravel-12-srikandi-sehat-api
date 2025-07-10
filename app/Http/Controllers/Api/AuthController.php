@@ -6,10 +6,11 @@ use App\Enums\RolesEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -41,11 +42,14 @@ class AuthController extends Controller
             return $this->json(
                 message: 'Login successful',
                 data: [
-                    'user'  => new UserResource($user->load('roles')),
+                    'user'  => new UserResource(
+                        $user->load(['roles', 'profile'])
+                    ),
                     'token' => $token
                 ]
             );
         } catch (\Throwable $th) {
+            Log::error('Registration error: ' . $th->getMessage());
             return $this->json(
                 status: 500,
                 message: 'An error occurred on the server. Please try again later.'
@@ -78,11 +82,14 @@ class AuthController extends Controller
                 status: 201,
                 message: 'Registration successful',
                 data: [
-                    'user' => new UserResource($user->load('roles')),
+                    'user' => new UserResource(
+                        $user->load(['roles', 'profile'])
+                    ),
                     'token' => $token
                 ]
             );
         } catch (\Throwable $th) {
+            Log::error('Registration error: ' . $th->getMessage());
             return $this->json(
                 status: 500,
                 message: 'An error occurred on the server. Please try again later.'
@@ -105,6 +112,7 @@ class AuthController extends Controller
                 message: 'Logout successful'
             );
         } catch (\Throwable $th) {
+            Log::error('Registration error: ' . $th->getMessage());
             return $this->json(
                 status: 500,
                 message: 'An error occurred on the server. Please try again later.'
