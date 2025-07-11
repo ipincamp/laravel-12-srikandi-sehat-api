@@ -12,15 +12,30 @@ class RegencyController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Province $province)
+    public function __invoke(string $provinceCode)
     {
-        $regencies = Cache::remember("regencies_for_province_{$province->id}", 86400, function () use ($province) {
-            return $province->with('regencies')->get(['id', 'code', 'name']);
+        $cacheTtl = 86400;
+        $cacheKey = "regencies_for_province_code_{$provinceCode}";
+
+        $province = Cache::remember($cacheKey, $cacheTtl, function () use ($provinceCode) {
+            return Province::where('code', $provinceCode)
+                ->with(['regencies' => function ($query) {
+                    $query->select('id', 'name', 'code', 'province_id');
+                }])
+                ->first();
         });
+
+        if (!$province) {
+            return $this->json(
+                status: 404,
+                message: 'Province not found.',
+                data: []
+            );
+        }
 
         return $this->json(
             message: 'Regencies retrieved successfully',
-            data: RegencyResource::collection($regencies)
+            data: RegencyResource::collection($province->regencies)
         );
     }
 }
