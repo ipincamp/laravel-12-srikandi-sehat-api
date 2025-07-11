@@ -44,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Menstrual Cycle
     Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
+        Route::get('history', 'history')->name('cycles.history');
         Route::post('start', 'start')->name('cycles.start');
         Route::post('finish', 'finish')->name('cycles.finish');
         Route::post('symptoms', 'logSymptoms')->name('cycles.log_symptoms');
