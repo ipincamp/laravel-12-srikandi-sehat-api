@@ -23,8 +23,8 @@ Route::prefix('auth')->controller(AuthController::class)->group(function () {
 // Rute Lokasi (Umumnya Publik) - untuk dropdown alamat
 Route::prefix('locations')->group(function () {
     Route::get('/provinces', [ProvinceController::class, '__invoke'])->name('locations.provinces');
-    Route::get('/provinces/{province}/regencies', [RegencyController::class, '__invoke'])->name('locations.regencies');
-    Route::get('/regencies/{regency}/districts', [DistrictController::class, '__invoke'])->name('locations.districts');
+    Route::get('/provinces/{provinceCode}/regencies', [RegencyController::class, '__invoke'])->name('locations.regencies');
+    Route::get('/regencies/{regencyCode}/districts', [DistrictController::class, '__invoke'])->name('locations.districts');
     Route::get('/districts/{districtCode}/villages', [VillageController::class, '__invoke'])->name('locations.villages');
 });
 

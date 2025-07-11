@@ -12,15 +12,30 @@ class DistrictController extends Controller
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Regency $regency)
+    public function __invoke(string $regencyCode)
     {
-        $districts = Cache::remember("districts_for_regency_{$regency->id}", 86400, function () use ($regency) {
-            return $regency->with('districts')->get(['id', 'code', 'name']);
+        $cacheTtl = 86400;
+        $cacheKey = "districts_for_regency_code_{$regencyCode}";
+
+        $districts = Cache::remember($cacheKey, $cacheTtl, function () use ($regencyCode) {
+            return Regency::where('code', $regencyCode)
+                ->with(['districts' => function ($query) {
+                    $query->select('id', 'name', 'code', 'regency_id');
+                }])
+                ->first();
         });
+
+        if (!$districts) {
+            return $this->json(
+                status: 404,
+                message: 'Regency not found.',
+                data: []
+            );
+        }
 
         return $this->json(
             message: 'Districts retrieved successfully',
-            data: DistrictResource::collection($districts)
+            data: DistrictResource::collection($districts->districts)
         );
     }
 }
