@@ -30,9 +30,6 @@ Route::prefix('locations')->group(function () {
     Route::get('/districts/{districtCode}/villages', [VillageController::class, '__invoke'])->name('locations.villages');
 });
 
-// Rute untuk mendapatkan daftar gejala (symptoms)
-Route::get('symptoms', [SymptomController::class, '__invoke'])->name('symptoms.index');
-
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {
     // User Profile
@@ -42,6 +39,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('password', 'changePassword')->name('changePassword');
     });
 
+    // Daftar gejala (symptoms)
+    Route::get('cycles/symptoms', [SymptomController::class, '__invoke'])->name('cycles.symptoms');
     // Menstrual Cycle
     Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
         Route::get('history', 'history')->name('cycles.history');

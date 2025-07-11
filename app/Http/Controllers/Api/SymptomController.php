@@ -16,7 +16,7 @@ class SymptomController extends Controller
         // Gunakan cache agar tidak query berulang kali
         $symptoms = Cache::remember('symptoms_list_all', 86400, function () {
             // 86400 detik = 24 jam
-            return Symptom::get(['name', 'category', 'description']);
+            return Symptom::select(['name', 'category', 'description']);
         });
 
         return $this->json(
