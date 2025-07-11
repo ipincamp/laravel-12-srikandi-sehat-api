@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Cycle;
 
+use App\Models\Symptom;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Validation\Rule;
 
 class LogSymptomRequest extends FormRequest
 {
@@ -21,6 +24,12 @@ class LogSymptomRequest extends FormRequest
      */
     public function rules(): array
     {
+        // 1. Ambil daftar gejala yang valid dari database dan simpan di cache
+        $allowedSymptoms = Cache::remember('symptoms_list', 86400, function () {
+            // 86400 detik = 24 jam
+            return Symptom::pluck('name')->all();
+        });
+
         return [
             // 'symptoms' harus berupa array dan tidak boleh kosong
             'symptoms' => [
@@ -32,7 +41,7 @@ class LogSymptomRequest extends FormRequest
             'symptoms.*' => [
                 'required',
                 'string',
-                'exists:symptoms,name',
+                Rule::in($allowedSymptoms),
             ],
             'notes' => [
                 'nullable',

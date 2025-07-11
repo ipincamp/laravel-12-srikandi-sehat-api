@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\Locations\RegencyController;
 use App\Http\Controllers\Api\Locations\VillageController;
 use App\Http\Controllers\Api\MenstrualCycleController;
+use App\Http\Controllers\Api\SymptomController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,9 @@ Route::prefix('locations')->group(function () {
     Route::get('/regencies/{regencyCode}/districts', [DistrictController::class, '__invoke'])->name('locations.districts');
     Route::get('/districts/{districtCode}/villages', [VillageController::class, '__invoke'])->name('locations.villages');
 });
+
+// Rute untuk mendapatkan daftar gejala (symptoms)
+Route::get('symptoms', [SymptomController::class, '__invoke'])->name('symptoms.index');
 
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {

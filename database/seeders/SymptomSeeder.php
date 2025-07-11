@@ -16,9 +16,9 @@ class SymptomSeeder extends Seeder
             ['name' => 'Anemia', 'category' => 'Fisik'],
             ['name' => 'Kram Perut', 'category' => 'Fisik'],
             ['name' => 'Nyeri Otot', 'category' => 'Fisik'],
-            ['name' => 'Sakit Kepala', 'category' => 'Fisik'],
-            ['name' => 'Jerawat', 'category' => 'Fisik'],
-            ['name' => 'Nafsu Makan Bertambah', 'category' => 'Lainnya'],
+            // ['name' => 'Sakit Kepala', 'category' => 'Fisik'],
+            // ['name' => 'Jerawat', 'category' => 'Fisik'],
+            // ['name' => 'Nafsu Makan Bertambah', 'category' => 'Lainnya'],
         ];
 
         foreach ($symptoms as $symptom) {
