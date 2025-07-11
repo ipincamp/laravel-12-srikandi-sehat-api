@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
             RegencySeeder::class,
             DistrictSeeder::class,
             VillageSeeder::class,
+
+            // Symptom Seeder
+            SymptomSeeder::class,
         ]);
     }
 }

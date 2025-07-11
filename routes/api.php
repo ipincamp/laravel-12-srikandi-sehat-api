@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\Locations\DistrictController;
 use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\Locations\RegencyController;
 use App\Http\Controllers\Api\Locations\VillageController;
+use App\Http\Controllers\Api\MenstrualCycleController;
+use App\Http\Controllers\Api\SymptomController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +30,9 @@ Route::prefix('locations')->group(function () {
     Route::get('/districts/{districtCode}/villages', [VillageController::class, '__invoke'])->name('locations.villages');
 });
 
+// Rute untuk mendapatkan daftar gejala (symptoms)
+Route::get('symptoms', [SymptomController::class, '__invoke'])->name('symptoms.index');
+
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {
     // User Profile
@@ -35,6 +40,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', 'profile')->name('profile');
         Route::post('profile', 'updateProfile')->name('updateProfile');
         Route::post('password', 'changePassword')->name('changePassword');
+    });
+
+    // Menstrual Cycle
+    Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
+        Route::get('history', 'history')->name('cycles.history');
+        Route::post('start', 'start')->name('cycles.start');
+        Route::post('finish', 'finish')->name('cycles.finish');
+        Route::post('symptoms', 'logSymptoms')->name('cycles.log_symptoms');
     });
 
     // Logout

@@ -59,4 +59,24 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class);
     }
+
+    /**
+     * Get all of the menstrualCycles for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function menstrualCycles(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MenstrualCycle::class);
+    }
+
+    /**
+     * Get all of the symptomEntries for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function symptomEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SymptomEntry::class);
+    }
 }
