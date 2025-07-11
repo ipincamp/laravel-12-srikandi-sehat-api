@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->enum('category', [
-                'mood',
-                'physical',
-                'other',
+                'Mood',
+                'Fisik',
+                'Lainnya',
                 /*
                 'dismenorea',
                 'suasana-hati',
