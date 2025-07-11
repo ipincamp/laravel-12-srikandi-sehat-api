@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Locations\DistrictController;
 use App\Http\Controllers\Api\Locations\ProvinceController;
 use App\Http\Controllers\Api\Locations\RegencyController;
 use App\Http\Controllers\Api\Locations\VillageController;
+use App\Http\Controllers\Api\MenstrualCycleController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +36,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', 'profile')->name('profile');
         Route::post('profile', 'updateProfile')->name('updateProfile');
         Route::post('password', 'changePassword')->name('changePassword');
+    });
+
+    // Menstrual Cycle
+    Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
+        Route::post('start', 'start')->name('cycles.start');
+        Route::post('finish', 'finish')->name('cycles.finish');
+        Route::post('symptoms', 'logSymptoms')->name('cycles.log_symptoms');
     });
 
     // Logout
