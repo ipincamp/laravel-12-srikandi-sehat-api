@@ -14,7 +14,17 @@ class MenstrualCycle extends Model
     protected $fillable = [
         'user_id',
         'start_date',
-        'end_date',
+        'finish_date',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'start_date' => 'datetime',
+        'finish_date' => 'datetime',
     ];
 
     /**
