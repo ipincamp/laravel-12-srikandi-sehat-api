@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -141,5 +143,13 @@ class UserController extends Controller
                 ]
             ],
         ]);
+    }
+
+    /**
+     * Menangani permintaan ekspor data pengguna ke CSV.
+     */
+    public function exportCsv()
+    {
+        return Excel::download(new UsersExport, 'srikandi_sehat_users.csv');
     }
 }
