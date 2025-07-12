@@ -144,10 +144,10 @@ class MenstrualCycleController extends Controller
                 'start_date' => $currentCycle->start_date,
                 'finish_date' => $currentCycle->finish_date,
                 // Lama dia haid dalam hari
-                'period_length_days' => $periodLength,
+                'period_length_days' => abs(round($periodLength)),
                 // Jarak dari mulai haid ini ke haid berikutnya.
                 // Nilainya null untuk siklus terakhir karena belum ada data haid selanjutnya.
-                'cycle_length_days' => $cycleLength,
+                'cycle_length_days' => abs(round($cycleLength)),
             ];
         }
 
