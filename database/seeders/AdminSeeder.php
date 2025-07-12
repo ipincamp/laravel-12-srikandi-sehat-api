@@ -27,5 +27,9 @@ class AdminSeeder extends Seeder
         );
 
         $admin->assignRole(RolesEnum::ADMIN->value);
+
+        User::factory(100)->create()->each(function ($user) {
+            $user->assignRole(RolesEnum::USER->value);
+        });
     }
 }
