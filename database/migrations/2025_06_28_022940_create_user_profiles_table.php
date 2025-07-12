@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('weight_kg', 5, 2)->unsigned()->nullable();
             $table->string('last_education')->nullable();
             $table->string('last_parent_education')->nullable();
+            $table->string('last_parent_job')->nullable();
             $table->enum('internet_access', ['wifi', 'seluler'])->nullable();
             $table->date('first_menstruation')->nullable();
             $table->timestamps();
