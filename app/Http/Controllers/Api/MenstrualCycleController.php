@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
 use App\Http\Resources\Cycle\FinishedCycleResource;
+use App\Http\Resources\Cycle\SymptomEntryResource;
 use App\Models\Symptom;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -92,12 +93,12 @@ class MenstrualCycleController extends Controller
         $entry->symptoms()->sync($symptomIds);
 
         // Kembalikan data yang baru dibuat beserta relasinya
-        $entry->load('symptoms:id,name');
+        $entry->load('symptoms');
 
         return $this->json(
             status: 201,
             message: 'Symptoms logged successfully.',
-            data: $entry,
+            data: new SymptomEntryResource($entry),
         );
     }
 
