@@ -25,6 +25,7 @@ class UserProfile extends Model
         'weight_kg',
         'last_education',
         'last_parent_education',
+        'last_parent_job',
         'internet_access',
         'first_menstruation',
     ];
