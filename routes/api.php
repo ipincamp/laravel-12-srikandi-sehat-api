@@ -32,6 +32,8 @@ Route::prefix('locations')->group(function () {
 
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('users', [UserController::class, 'index'])->name('users.index');
+
     // User Profile
     Route::prefix('me')->controller(UserController::class)->name('users.')->group(function () {
         Route::get('/', 'profile')->name('profile');

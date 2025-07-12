@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\User\UserResource;
+use App\Models\User;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -97,5 +99,47 @@ class UserController extends Controller
         return $this->json(
             message: 'Password changed successfully. Please log in again.'
         );
+    }
+
+    /**
+     * Menampilkan daftar semua user dengan filter dan paginasi.
+     */
+    public function index(Request $request)
+    {
+        $request->validate([
+            'classification' => ['nullable', 'string', 'in:urban,rural'],
+        ]);
+
+        $stats = DB::table('classifications')
+            ->select(
+                'classifications.name',
+                DB::raw('COUNT(user_profiles.user_id) as total_users')
+            )
+            ->leftJoin('villages', 'villages.classification_id', '=', 'classifications.id')
+            ->leftJoin('user_profiles', 'user_profiles.village_id', '=', 'villages.id')
+            ->groupBy('classifications.name')
+            ->get()
+            ->pluck('total_users', 'name');
+
+        $query = User::query()->with(['profile.village.classification', 'roles']);
+
+        if ($request->filled('classification')) {
+            $query->whereHas('profile.village.classification', function ($q) use ($request) {
+                $q->where('name', $request->classification);
+            });
+        }
+
+        $users = $query->paginate(10)->withQueryString();
+
+        return UserResource::collection($users)->additional([
+            "status" => true,
+            "message" => "Profile retrieved successfully",
+            'meta' => [
+                'stats' => [
+                    'urban' => $stats->get('urban', 0),
+                    'rural' => $stats->get('rural', 0),
+                ]
+            ],
+        ]);
     }
 }
