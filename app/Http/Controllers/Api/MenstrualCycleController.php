@@ -83,7 +83,7 @@ class MenstrualCycleController extends Controller
 
         // Buat entri catatan gejala
         $entry = $user->symptomEntries()->create([
-            'log_date'           => $validated['log_date'],
+            'log_date'           => Carbon::parse($validated['log_date']),
             'notes'              => $validated['notes'] ?? null,
             'menstrual_cycle_id' => $activeCycle?->id,
         ]);
