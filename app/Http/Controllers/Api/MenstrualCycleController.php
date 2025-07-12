@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
+use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Models\Symptom;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,8 +18,8 @@ class MenstrualCycleController extends Controller
     {
         $user = $request->user();
 
-        // Cek apakah sudah ada siklus yang aktif (belum ada end_date)
-        $activeCycleExists = $user->menstrualCycles()->whereNull('end_date')->exists();
+        // Cek apakah sudah ada siklus yang aktif (belum ada finish_date)
+        $activeCycleExists = $user->menstrualCycles()->whereNull('finish_date')->exists();
 
         if ($activeCycleExists) {
             return $this->json(
@@ -28,14 +29,13 @@ class MenstrualCycleController extends Controller
         }
 
         // Buat siklus baru
-        $cycle = $user->menstrualCycles()->create([
+        $user->menstrualCycles()->create([
             'start_date' => now(),
         ]);
 
         return $this->json(
             status: 201,
             message: 'Menstrual cycle started successfully.',
-            data: $cycle,
         );
     }
 
@@ -47,7 +47,7 @@ class MenstrualCycleController extends Controller
         $user = $request->user();
 
         // Cari siklus yang sedang aktif
-        $activeCycle = $user->menstrualCycles()->whereNull('end_date')->latest('start_date')->first();
+        $activeCycle = $user->menstrualCycles()->whereNull('finish_date')->latest('start_date')->first();
 
         if (!$activeCycle) {
             return $this->json(
@@ -58,12 +58,12 @@ class MenstrualCycleController extends Controller
 
         // Update tanggal selesai
         $activeCycle->update([
-            'end_date' => now(),
+            'finish_date' => now(),
         ]);
 
         return $this->json(
             message: 'Menstrual cycle finished successfully.',
-            data: $activeCycle,
+            data: new FinishedCycleResource($activeCycle),
         );
     }
 
@@ -79,7 +79,7 @@ class MenstrualCycleController extends Controller
         $symptomIds = Symptom::whereIn('name', $validated['symptoms'])->pluck('id');
 
         // (Opsional) Cari siklus yang sedang aktif untuk dihubungkan
-        $activeCycle = $user->menstrualCycles()->whereNull('end_date')->latest('start_date')->first();
+        $activeCycle = $user->menstrualCycles()->whereNull('finish_date')->latest('start_date')->first();
 
         // Buat entri catatan gejala
         $entry = $user->symptomEntries()->create([
@@ -108,9 +108,9 @@ class MenstrualCycleController extends Controller
     {
         $user = $request->user();
 
-        // 1. Ambil semua siklus yang sudah selesai (end_date tidak null)
+        // 1. Ambil semua siklus yang sudah selesai (finish_date tidak null)
         $completedCycles = $user->menstrualCycles()
-            ->whereNotNull('end_date')
+            ->whereNotNull('finish_date')
             ->orderBy('start_date', 'asc')
             ->get();
 
@@ -126,7 +126,7 @@ class MenstrualCycleController extends Controller
         foreach ($completedCycles as $index => $currentCycle) {
             // Konversi ke objek Carbon untuk perhitungan
             $startDate = Carbon::parse($currentCycle->start_date);
-            $endDate = Carbon::parse($currentCycle->end_date);
+            $endDate = Carbon::parse($currentCycle->finish_date);
 
             // Hitung Lama Haid (Period Length)
             // Selisih hari antara selesai dan mulai, ditambah 1
@@ -142,12 +142,12 @@ class MenstrualCycleController extends Controller
 
             $history[] = [
                 'start_date' => $currentCycle->start_date,
-                'end_date' => $currentCycle->end_date,
+                'finish_date' => $currentCycle->finish_date,
                 // Lama dia haid dalam hari
-                'period_length_days' => $periodLength,
+                'period_length_days' => abs(round($periodLength)),
                 // Jarak dari mulai haid ini ke haid berikutnya.
                 // Nilainya null untuk siklus terakhir karena belum ada data haid selanjutnya.
-                'cycle_length_days' => $cycleLength,
+                'cycle_length_days' => abs(round($cycleLength)),
             ];
         }
 

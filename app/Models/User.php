@@ -79,4 +79,35 @@ class User extends Authenticatable
     {
         return $this->hasMany(SymptomEntry::class);
     }
+
+    /**
+     * Get the activeCycle associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function activeCycle(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(MenstrualCycle::class)
+            ->whereNull('finish_date')
+            ->latest('start_date');
+    }
+
+    /**
+     * Get the current cycle number for the User.
+     *
+     * Accessor untuk mendapatkan nomor siklus saat ini.
+     * Nama fungsi ini akan menjadi atribut 'current_cycle_number'.
+     *
+     * @return int|null
+     */
+    public function getCurrentCycleNumberAttribute(): ?int
+    {
+        // Jika tidak ada siklus yang aktif, kembalikan null.
+        if (!$this->activeCycle) {
+            return null;
+        }
+
+        // Jika ada, nomor siklus adalah total siklus yang pernah dimiliki user.
+        return $this->menstrualCycles()->count();
+    }
 }

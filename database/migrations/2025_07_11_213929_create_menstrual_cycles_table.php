@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('menstrual_cycles', function (Blueprint $table) {
             $table->id();
             $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
-            $table->date('start_date');
-            $table->date('end_date')->nullable();
+            $table->dateTime('start_date');
+            $table->dateTime('finish_date')->nullable();
             $table->timestamps();
         });
     }
