@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
+use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Models\Symptom;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class MenstrualCycleController extends Controller
 
         return $this->json(
             message: 'Menstrual cycle finished successfully.',
-            data: $activeCycle,
+            data: new FinishedCycleResource($activeCycle),
         );
     }
 
