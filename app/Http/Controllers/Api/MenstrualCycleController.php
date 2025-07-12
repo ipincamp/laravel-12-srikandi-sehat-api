@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
+use App\Http\Resources\Cycle\CycleHistoryResource;
 use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Http\Resources\Cycle\SymptomEntryResource;
 use App\Models\Symptom;
@@ -109,52 +110,44 @@ class MenstrualCycleController extends Controller
     {
         $user = $request->user();
 
-        // 1. Ambil semua siklus yang sudah selesai (finish_date tidak null)
+        // 1. Ambil siklus yang sudah selesai DAN muat relasi gejalanya (Eager Loading)
         $completedCycles = $user->menstrualCycles()
             ->whereNotNull('finish_date')
+            ->with('symptomEntries.symptoms')
             ->orderBy('start_date', 'asc')
             ->get();
 
-        // Jika data kurang dari 1, tidak ada yang bisa dihitung
-        if ($completedCycles->count() < 1) {
+        if ($completedCycles->isEmpty()) {
             return $this->json(
+                status: 404,
                 message: 'No completed cycle history found.',
             );
         }
 
-        $history = [];
-        // 2. Lakukan perulangan untuk menghitung durasi
-        foreach ($completedCycles as $index => $currentCycle) {
-            // Konversi ke objek Carbon untuk perhitungan
+        // Gunakan map untuk memproses koleksi dan menambahkan data kalkulasi
+        $historyData = $completedCycles->map(function ($currentCycle, $index) use ($completedCycles) {
             $startDate = Carbon::parse($currentCycle->start_date);
             $endDate = Carbon::parse($currentCycle->finish_date);
 
-            // Hitung Lama Haid (Period Length)
-            // Selisih hari antara selesai dan mulai, ditambah 1
             $periodLength = $endDate->diffInDays($startDate) + 1;
-
             $cycleLength = null;
-            // Hitung Panjang Siklus (Cycle Length) jika ada siklus berikutnya
+
             if (isset($completedCycles[$index + 1])) {
                 $nextCycleStartDate = Carbon::parse($completedCycles[$index + 1]->start_date);
-                // Selisih hari dari mulai haid ini ke mulai haid berikutnya
                 $cycleLength = $nextCycleStartDate->diffInDays($startDate);
             }
 
-            $history[] = [
-                'start_date' => $currentCycle->start_date,
-                'finish_date' => $currentCycle->finish_date,
-                // Lama dia haid dalam hari
+            // Kembalikan sebagai objek yang berisi model asli dan data kalkulasi
+            return (object) [
+                'cycle' => $currentCycle,
                 'period_length_days' => abs(round($periodLength)),
-                // Jarak dari mulai haid ini ke haid berikutnya.
-                // Nilainya null untuk siklus terakhir karena belum ada data haid selanjutnya.
                 'cycle_length_days' => abs(round($cycleLength)),
             ];
-        }
+        });
 
         return $this->json(
             message: 'Cycle history retrieved successfully',
-            data: array_reverse($history),
+            data: CycleHistoryResource::collection($historyData->reverse()),
         );
     }
 }

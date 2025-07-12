@@ -46,4 +46,14 @@ class MenstrualCycle extends Model
     {
         return $this->hasMany(SymptomLog::class);
     }
+
+    /**
+     * Get all of the symptomEntries for the MenstrualCycle
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function symptomEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SymptomEntry::class);
+    }
 }
