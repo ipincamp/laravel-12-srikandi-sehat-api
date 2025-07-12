@@ -1,50 +1,73 @@
-FROM node:22.16.0-slim AS node_builder
-FROM php:8.4.1-fpm-bullseye
+# Stage 1: Install Composer
+FROM composer:2.7 as composer_stage
 
-ARG user=ubuntu
-ARG uid=1000
+# Stage 2: Install dependensi PHP
+FROM php:8.3-fpm-alpine AS php_stage
 
-WORKDIR /var/www
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
+RUN apk add --no-cache \
     libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libicu-dev \
     libzip-dev \
-    ca-certificates \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN docker-php-ext-install \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
+    libxml2-dev \
+    jpeg-dev \
+    freetype-dev \
+    oniguruma-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
     bcmath \
-    intl \
+    gd \
+    mbstring \
+    opcache \
+    pdo_mysql \
     zip
 
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd
+RUN addgroup -g 1000 srikandi && \
+    adduser -u 1000 -G srikandi -s /bin/sh -D srikandi
 
-COPY --from=composer:2.8.3 /usr/bin/composer /usr/bin/composer
+WORKDIR /var/www/html
 
-COPY --from=node_builder /usr/local/ /usr/local/
+# Stage 3: Build aplikasi
+FROM php_stage AS app_build_stage
 
-COPY ./www.conf /usr/local/etc/php-fpm.d/www.conf
+USER root
+COPY --from=composer_stage /usr/bin/composer /usr/bin/composer
+RUN apk add --no-cache nodejs npm
+USER srikandi
 
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
+# Copy file composer & package, lalu install dependensi
+COPY --chown=srikandi:srikandi composer.json composer.lock ./
+RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist
 
-USER $user
+COPY --chown=srikandi:srikandi package.json package-lock.json ./
+RUN npm install
 
-WORKDIR /var/www
+# Salin semua kode aplikasi SEKARANG, sebelum build
+COPY --chown=srikandi:srikandi . .
 
+# Sekarang jalankan build, karena semua file sudah ada
+RUN npm run build
+# =========================================================
+
+# Stage 4: Final Production Image
+FROM php_stage AS production_stage
+
+COPY --from=composer_stage /usr/bin/composer /usr/bin/composer
+COPY --from=app_build_stage /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+
+USER root
+WORKDIR /var/www/html
+
+# Copy dependensi & aset yang sudah jadi dari build stage
+COPY --from=app_build_stage /var/www/html/vendor ./vendor
+COPY --from=app_build_stage /var/www/html/public/build ./public/build
+
+# Copy sisa kode aplikasi
+COPY --chown=srikandi:srikandi . .
+
+# Berikan izin yang benar untuk storage & cache
+RUN chown -R srikandi:srikandi storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
+
+USER srikandi
+
+EXPOSE 9000
 CMD ["php-fpm"]

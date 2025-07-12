@@ -2,38 +2,37 @@ services:
   #--- Layanan Aplikasi Laravel (PHP-FPM) ---#
   app:
     build:
-      context: ./docker/php
-      dockerfile: Dockerfile
-      args:
-        - user=${APP_USER}
-        - uid=${APP_UID}
-    container_name: srikandisehat-laravel
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: srikandi_app
     restart: unless-stopped
-    working_dir: /var/www
-    env_file:
-      - ./.env
+    working_dir: /var/www/html
     volumes:
-      - ./:/var/www
+      - .:/var/www/html
     networks:
       - srikandisehat
+    depends_on:
+      - db
 
   #--- Layanan Web Server (Nginx) ---#
-  webserver:
-    image: nginx:1.28.0-alpine
-    container_name: srikandisehat-webserver
+  web:
+    image: nginx:stable-alpine
+    container_name: srikandi_web
     restart: unless-stopped
     ports:
       - "8000:80"
     volumes:
-      - ./:/var/www
+      - .:/var/www/html
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - srikandisehat
+    depends_on:
+      - app
 
   #--- Layanan Database (MariaDB) ---#
   db:
     image: mariadb:10.11.13
-    container_name: srikandisehat-db
+    container_name: srikandi_db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -44,41 +43,12 @@ services:
       - srikandisehat-data:/var/lib/mysql
     networks:
       - srikandisehat
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
-  #--- Layanan phpMyAdmin ---#
-  phpmyadmin:
-    image: phpmyadmin:5.2.2
-    container_name: srikandisehat-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8001:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-    depends_on:
-      - db
-    networks:
-      - srikandisehat
-
-  #--- Layanan Webhook Listener ---#
-  webhook:
-    build:
-      context: ./docker/webhook
-      dockerfile: Dockerfile
-    container_name: srikandisehat-webhook
-    working_dir: /var/www
-    ports:
-      - "8002:8002"
-    volumes:
-      - .:/var/www
-      - ${SSH_AUTH_SOCK}:/ssh-agent
-    environment:
-      - SSH_AUTH_SOCK=/ssh-agent
-    networks:
-      - srikandisehat
-
-
-#--- Jaringan & Volume ---#
+# Network & Volume
 networks:
   srikandisehat:
     driver: bridge

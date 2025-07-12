@@ -58,9 +58,10 @@
         ],
         "dev-setup": [
             "composer install",
+            "npm install",
             "@php artisan key:generate --ansi",
-            "@php artisan migrate",
-            "@php artisan db:seed"
+            "@php artisan migrate --graceful --ansi",
+            "@php artisan db:seed --ansi"
         ],
         "test": [
             "@php artisan config:clear --ansi",
