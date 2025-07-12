@@ -1,5 +1,5 @@
 # Stage 1: Install Composer
-FROM composer:2.7 as composer_stage
+FROM composer:2.7 AS composer_stage
 
 # Stage 2: Install dependensi PHP
 FROM php:8.3-fpm-alpine AS php_stage
