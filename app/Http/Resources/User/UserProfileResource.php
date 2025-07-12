@@ -27,7 +27,11 @@ class UserProfileResource extends JsonResource
             'internet_access' => $this->internet_access,
             'first_menstruation' => $this->first_menstruation,
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
-            'address' => new VillageResource($this->whenLoaded('village')),
+            'address' => $this->whenLoaded('village', function () {
+                $village = $this->village;
+                $classification = strtoupper($village->classification) === 'PERDESAAN' ? 'DESA' : 'KOTA';
+                return "($classification) {$village->name}, KECAMATAN {$village->district->name}, KABUPATEN {$village->district->regency->name}, PROVINSI {$village->district->regency->province->name}";
+            }),
         ];
     }
 }
