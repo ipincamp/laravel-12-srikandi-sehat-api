@@ -63,6 +63,7 @@ class UserController extends Controller
                     'weight_kg' => $profileData['bb_kg'],
                     'last_education' => $profileData['edu_now'],
                     'last_parent_education' => $profileData['edu_parent'],
+                    'last_parent_job' => $profileData['job_parent'],
                     'internet_access' => $profileData['inet_access'],
                     'first_menstruation' => $profileData['first_haid'],
                 ],

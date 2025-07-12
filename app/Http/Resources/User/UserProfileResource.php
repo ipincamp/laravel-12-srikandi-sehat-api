@@ -23,6 +23,7 @@ class UserProfileResource extends JsonResource
             'bmi' => $this->weight_kg && $this->height_m ? round($this->weight_kg / ($this->height_m ** 2), 2) : null,
             'last_education' => $this->last_education,
             'last_parent_education' => $this->last_parent_education,
+            'last_parent_job' => $this->last_parent_job,
             'internet_access' => $this->internet_access,
             'first_menstruation' => $this->first_menstruation,
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
