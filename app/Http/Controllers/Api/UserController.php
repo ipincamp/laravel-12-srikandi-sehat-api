@@ -23,6 +23,7 @@ class UserController extends Controller
             'roles',
             'profile.village.district.regency.province',
             'profile.village.classification',
+            'activeCycle',
         ]);
 
         return $this->json(
