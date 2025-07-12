@@ -91,6 +91,13 @@ class UpdateProfileRequest extends FormRequest
                 'string',
                 'max:255'
             ],
+            // parent job
+            'job_parent' => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255'
+            ],
             // internet access (wifi / seluler)
             'inet_access' => [
                 'sometimes',
