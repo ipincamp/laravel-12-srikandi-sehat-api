@@ -18,9 +18,9 @@ class UserProfileResource extends JsonResource
         return [
             'phone' => $this->phone,
             'birthdate' => $this->birthdate,
-            'height_m' => $this->height_m,
+            'height_cm' => $this->height_cm,
             'weight_kg' => $this->weight_kg,
-            'bmi' => $this->weight_kg && $this->height_m ? round($this->weight_kg / ($this->height_m ** 2), 2) : null,
+            'bmi' => $this->weight_kg && $this->height_cm ? round($this->weight_kg / (($this->height_cm / 100) ** 2), 2) : null,
             'last_education' => $this->last_education,
             'last_parent_education' => $this->last_parent_education,
             'last_parent_job' => $this->last_parent_job,

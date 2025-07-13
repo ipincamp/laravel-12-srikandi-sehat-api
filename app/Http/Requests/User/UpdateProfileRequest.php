@@ -64,11 +64,11 @@ class UpdateProfileRequest extends FormRequest
                 'before_or_equal:today'
             ],
             // tinggi badan dalam meter
-            'tb_m' => [
+            'tb_cm' => [
                 'sometimes',
                 'nullable',
                 'numeric',
-                'between:0.1,3.0'
+                'min:0'
             ],
             // berat badan dalam kilogram
             'bb_kg' => [
