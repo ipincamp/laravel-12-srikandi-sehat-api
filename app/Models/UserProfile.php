@@ -21,7 +21,7 @@ class UserProfile extends Model
         'village_id',
         'phone',
         'birthdate',
-        'height_m',
+        'height_cm',
         'weight_kg',
         'last_education',
         'last_parent_education',

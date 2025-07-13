@@ -63,7 +63,7 @@ class UserController extends Controller
                     'phone' => $profileData['phone'],
                     'village_id' => $address->id,
                     'birthdate' => $profileData['birthdate'],
-                    'height_m' => $profileData['tb_m'],
+                    'height_cm' => $profileData['tb_cm'],
                     'weight_kg' => $profileData['bb_kg'],
                     'last_education' => $profileData['edu_now'],
                     'last_parent_education' => $profileData['edu_parent'],
