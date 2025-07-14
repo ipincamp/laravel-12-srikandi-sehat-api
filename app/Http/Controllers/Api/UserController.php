@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ClassificationsEnum;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
@@ -126,11 +127,20 @@ class UserController extends Controller
             )
             ->leftJoin('villages', 'villages.classification_id', '=', 'classifications.id')
             ->leftJoin('user_profiles', 'user_profiles.village_id', '=', 'villages.id')
+            ->leftJoin('users', 'users.id', '=', 'user_profiles.user_id')
+            ->leftJoin('model_has_roles', 'model_has_roles.model_id', '=', 'users.id')
+            ->leftJoin('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->whereNotIn('roles.name', ['admin'])
+            ->orWhereNull('roles.name')
             ->groupBy('classifications.name')
             ->get()
             ->pluck('total_users', 'name');
 
         $query = User::query()->with(['profile.village.classification', 'roles']);
+
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'admin');
+        });
 
         if ($request->filled('scope')) {
             $classificationId = $request->scope;
@@ -147,8 +157,8 @@ class UserController extends Controller
             "message" => "Profile retrieved successfully",
             'meta' => [
                 'stats' => [
-                    'urban' => $stats->get('urban', 0),
-                    'rural' => $stats->get('rural', 0),
+                    'urban' => $stats->get(ClassificationsEnum::URBAN->value, 0),
+                    'rural' => $stats->get(ClassificationsEnum::RURAL->value, 0),
                 ]
             ],
         ]);

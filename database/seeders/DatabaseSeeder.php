@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // User and Role Seeders
             RoleSeeder::class,
-            AdminSeeder::class,
 
             // Classification and Location Seeders
             ClassificationSeeder::class,
@@ -25,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
             // Symptom Seeder
             SymptomSeeder::class,
+            AdminSeeder::class,
         ]);
     }
 }
