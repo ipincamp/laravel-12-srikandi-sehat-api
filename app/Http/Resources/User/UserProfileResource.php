@@ -28,9 +28,24 @@ class UserProfileResource extends JsonResource
             'first_menstruation' => $this->first_menstruation,
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'address' => $this->whenLoaded('village', function () {
-                $village = $this->village;
-                $classification = strtoupper($village->classification) === 'PERDESAAN' ? 'DESA' : 'KOTA';
-                return "($classification) {$village->name}, KECAMATAN {$village->district->name}, KABUPATEN {$village->district->regency->name}, PROVINSI {$village->district->regency->province->name}";
+                // 1. Pastikan relasi village tidak null
+                if (!$this->village) {
+                    return null;
+                }
+
+                // 2. Ambil nama klasifikasi dari relasi, bukan string mentah
+                $classificationName = strtolower(optional($this->village->classification)->name); // akan berisi 'rural' atau 'urban'
+
+                // 3. Logika pengecekan yang benar
+                $classificationLabel = ($classificationName === 'rural') ? 'DESA' : 'KOTA';
+
+                // Gunakan optional() untuk mencegah error jika ada relasi yang null
+                $villageName = optional($this->village)->name;
+                $districtName = optional($this->village->district)->name;
+                $regencyName = optional(optional($this->village->district)->regency)->name;
+                $provinceName = optional(optional(optional($this->village->district)->regency)->province)->name;
+
+                return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
             }),
         ];
     }

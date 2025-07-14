@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ClassificationsEnum;
 use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
 use App\Http\Resources\User\UserResource;
+use App\Models\Classification;
 use App\Models\User;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
@@ -108,38 +112,59 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        // 1. Validasi (tetap sama)
+        $validScopeIds = Cache::remember('classification_ids', 86400, function () {
+            return Classification::pluck('id')->all();
+        });
+
         $request->validate([
-            'classification' => ['nullable', 'string', 'in:urban,rural'],
+            'scope' => ['nullable', 'integer', Rule::in($validScopeIds)],
         ]);
 
+        // Kueri ini untuk diagram lingkaran dan akan selalu menampilkan total keseluruhan.
         $stats = DB::table('classifications')
             ->select(
                 'classifications.name',
-                DB::raw('COUNT(user_profiles.user_id) as total_users')
+                DB::raw('COUNT(DISTINCT user_profiles.user_id) as total_users')
             )
             ->leftJoin('villages', 'villages.classification_id', '=', 'classifications.id')
             ->leftJoin('user_profiles', 'user_profiles.village_id', '=', 'villages.id')
+            ->whereIn('user_profiles.user_id', function ($query) {
+                // Hanya hitung user yang bukan admin
+                $query->select('model_id')->from('model_has_roles')->where('role_id', '!=', 1); // Asumsi ID admin = 1
+            })
             ->groupBy('classifications.name')
             ->get()
             ->pluck('total_users', 'name');
 
+        // 3. Query utama untuk daftar user (tetap sama)
         $query = User::query()->with(['profile.village.classification', 'roles']);
 
-        if ($request->filled('classification')) {
-            $query->whereHas('profile.village.classification', function ($q) use ($request) {
-                $q->where('name', $request->classification);
+        $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'admin');
+        });
+
+        if ($request->filled('scope')) {
+            $classificationId = $request->scope;
+
+            $query->whereHas('profile.village', function ($q) use ($classificationId) {
+                $q->where('classification_id', $classificationId);
             });
         }
 
+        // 4. Paginasi (tetap sama)
+        // Objek $users ini sudah berisi total data yang terfilter
         $users = $query->paginate(10)->withQueryString();
 
+        // 5. Susun Ulang Respons JSON
+        // Kita keluarkan 'stats' dari 'meta' agar tidak menimpa meta bawaan paginasi
         return UserResource::collection($users)->additional([
             "status" => true,
             "message" => "Profile retrieved successfully",
             'meta' => [
                 'stats' => [
-                    'urban' => $stats->get('urban', 0),
-                    'rural' => $stats->get('rural', 0),
+                    'urban' => $stats->get(ClassificationsEnum::URBAN->value, 0),
+                    'rural' => $stats->get(ClassificationsEnum::RURAL->value, 0),
                 ]
             ],
         ]);
