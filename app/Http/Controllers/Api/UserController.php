@@ -112,6 +112,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        // 1. Validasi (tetap sama)
         $validScopeIds = Cache::remember('classification_ids', 86400, function () {
             return Classification::pluck('id')->all();
         });
@@ -120,22 +121,23 @@ class UserController extends Controller
             'scope' => ['nullable', 'integer', Rule::in($validScopeIds)],
         ]);
 
+        // Kueri ini untuk diagram lingkaran dan akan selalu menampilkan total keseluruhan.
         $stats = DB::table('classifications')
             ->select(
                 'classifications.name',
-                DB::raw('COUNT(user_profiles.user_id) as total_users')
+                DB::raw('COUNT(DISTINCT user_profiles.user_id) as total_users')
             )
             ->leftJoin('villages', 'villages.classification_id', '=', 'classifications.id')
             ->leftJoin('user_profiles', 'user_profiles.village_id', '=', 'villages.id')
-            ->leftJoin('users', 'users.id', '=', 'user_profiles.user_id')
-            ->leftJoin('model_has_roles', 'model_has_roles.model_id', '=', 'users.id')
-            ->leftJoin('roles', 'roles.id', '=', 'model_has_roles.role_id')
-            ->whereNotIn('roles.name', ['admin'])
-            ->orWhereNull('roles.name')
+            ->whereIn('user_profiles.user_id', function ($query) {
+                // Hanya hitung user yang bukan admin
+                $query->select('model_id')->from('model_has_roles')->where('role_id', '!=', 1); // Asumsi ID admin = 1
+            })
             ->groupBy('classifications.name')
             ->get()
             ->pluck('total_users', 'name');
 
+        // 3. Query utama untuk daftar user (tetap sama)
         $query = User::query()->with(['profile.village.classification', 'roles']);
 
         $query->whereDoesntHave('roles', function ($q) {
@@ -150,8 +152,12 @@ class UserController extends Controller
             });
         }
 
+        // 4. Paginasi (tetap sama)
+        // Objek $users ini sudah berisi total data yang terfilter
         $users = $query->paginate(10)->withQueryString();
 
+        // 5. Susun Ulang Respons JSON
+        // Kita keluarkan 'stats' dari 'meta' agar tidak menimpa meta bawaan paginasi
         return UserResource::collection($users)->additional([
             "status" => true,
             "message" => "Profile retrieved successfully",
