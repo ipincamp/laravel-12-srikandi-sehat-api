@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
@@ -109,7 +110,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $request->validate([
-            'classification' => ['nullable', 'string', 'in:urban,rural'],
+            'scope' => ['nullable', 'integer', Rule::in([1, 2])],
         ]);
 
         $stats = DB::table('classifications')
@@ -125,9 +126,11 @@ class UserController extends Controller
 
         $query = User::query()->with(['profile.village.classification', 'roles']);
 
-        if ($request->filled('classification')) {
-            $query->whereHas('profile.village.classification', function ($q) use ($request) {
-                $q->where('name', $request->classification);
+        if ($request->filled('scope')) {
+            $classificationId = ($request->scope == 1) ? 1 : 2;
+
+            $query->whereHas('profile.village', function ($q) use ($classificationId) {
+                $q->where('classification_id', $classificationId);
             });
         }
 
