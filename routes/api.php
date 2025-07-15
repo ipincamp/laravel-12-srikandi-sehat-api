@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('cycles/symptoms', [SymptomController::class, '__invoke'])->name('cycles.symptoms');
     // Menstrual Cycle
     Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
+        Route::get('symptoms/{entry}', 'showSymptomLog')->name('cycles.symptoms.show');
         Route::get('history', 'history')->name('cycles.history');
         Route::post('start', 'start')->name('cycles.start');
         Route::post('finish', 'finish')->name('cycles.finish');
