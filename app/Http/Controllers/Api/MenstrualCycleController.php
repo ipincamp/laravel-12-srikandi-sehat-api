@@ -8,6 +8,7 @@ use App\Http\Resources\Cycle\CycleHistoryResource;
 use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Http\Resources\Cycle\SymptomEntryResource;
 use App\Models\Symptom;
+use App\Models\SymptomEntry;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -88,6 +89,7 @@ class MenstrualCycleController extends Controller
             'log_date'           => Carbon::parse($validated['log_date']),
             'notes'              => $validated['notes'] ?? null,
             'menstrual_cycle_id' => $activeCycle?->id,
+            'mood_score'         => $validated['mood_score'] ?? null,
         ]);
 
         // Hubungkan entri dengan semua gejala yang dipilih
@@ -148,6 +150,38 @@ class MenstrualCycleController extends Controller
         return $this->json(
             message: 'Cycle history retrieved successfully',
             data: CycleHistoryResource::collection($historyData->reverse()),
+        );
+    }
+
+    /**
+     * Menampilkan detail log gejala berdasarkan ID.
+     */
+    public function showSymptomLog(Request $request, string $logId)
+    {
+        $symptomEntry = SymptomEntry::find($logId);
+
+        if (!$symptomEntry) {
+            return $this->json(
+                status: 404,
+                message: 'Symptom log not found.',
+            );
+        }
+
+        // Pastikan user yang meminta adalah pemilik data
+        if ($request->user()->id !== $symptomEntry->user_id) {
+            return $this->json(
+                status: 403,
+                message: 'This action is unauthorized.',
+            );
+        }
+
+        // Muat relasi yang dibutuhkan oleh resource
+        $symptomEntry->load('symptoms');
+
+        // Gunakan resource yang sudah ada untuk konsistensi
+        return $this->json(
+            message: 'Symptom log retrieved successfully.',
+            data: new SymptomEntryResource($symptomEntry),
         );
     }
 }

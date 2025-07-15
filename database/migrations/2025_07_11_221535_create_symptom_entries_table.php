@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('menstrual_cycle_id')->nullable()->constrained()->onDelete('set null');
             $table->dateTime('log_date');
+            $table->tinyInteger('mood_score')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

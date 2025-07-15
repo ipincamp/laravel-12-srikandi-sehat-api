@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('last_parent_education')->nullable();
             $table->string('last_parent_job')->nullable();
             $table->enum('internet_access', ['wifi', 'seluler'])->nullable();
-            $table->date('first_menstruation')->nullable();
+            $table->integer('first_menstruation')->nullable();
             $table->timestamps();
         });
     }

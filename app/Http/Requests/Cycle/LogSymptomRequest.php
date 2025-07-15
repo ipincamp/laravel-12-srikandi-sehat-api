@@ -43,6 +43,15 @@ class LogSymptomRequest extends FormRequest
                 'string',
                 Rule::in($allowedSymptoms),
             ],
+            'mood_score' => [
+                'nullable',
+                'integer',
+                'between:1,4', // Asumsi 1=Senang, 2=Biasa, 3=Sedih, 4=Marah
+                Rule::requiredIf(function () {
+                    // Wajib diisi JIKA array 'symptoms' yang dikirim mengandung 'Mood Swing'
+                    return in_array('Mood Swing', $this->input('symptoms', []));
+                }),
+            ],
             'notes' => [
                 'nullable',
                 'string',

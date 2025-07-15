@@ -18,6 +18,7 @@ class SymptomEntry extends Model
         'user_id',
         'menstrual_cycle_id',
         'log_date',
+        'mood_score',
         'notes',
     ];
 

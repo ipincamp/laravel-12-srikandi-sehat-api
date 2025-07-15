@@ -15,6 +15,7 @@ class Symptom extends Model
         'name',
         'category',
         'description',
+        'recommendation',
     ];
 
     /**

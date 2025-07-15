@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Enums\ClassificationsEnum;
 use App\Http\Resources\Location\VillageResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -26,7 +27,6 @@ class UserProfileResource extends JsonResource
             'last_parent_job' => $this->last_parent_job,
             'internet_access' => $this->internet_access,
             'first_menstruation' => $this->first_menstruation,
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'address' => $this->whenLoaded('village', function () {
                 // 1. Pastikan relasi village tidak null
                 if (!$this->village) {
@@ -34,10 +34,10 @@ class UserProfileResource extends JsonResource
                 }
 
                 // 2. Ambil nama klasifikasi dari relasi, bukan string mentah
-                $classificationName = strtolower(optional($this->village->classification)->name); // akan berisi 'rural' atau 'urban'
+                $classificationName = $this->village->classification->name;
 
                 // 3. Logika pengecekan yang benar
-                $classificationLabel = ($classificationName === 'rural') ? 'DESA' : 'KOTA';
+                $classificationLabel = ($classificationName === ClassificationsEnum::RURAL->value) ? 'DESA' : 'KOTA';
 
                 // Gunakan optional() untuk mencegah error jika ada relasi yang null
                 $villageName = optional($this->village)->name;
@@ -47,6 +47,7 @@ class UserProfileResource extends JsonResource
 
                 return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
             }),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
     }
 }

@@ -27,7 +27,7 @@ class UserProfileFactory extends Factory
             'last_parent_education' => $this->faker->randomElement(['SD', 'SMP', 'SMA', 'S1']),
             'last_parent_job' => $this->faker->randomElement(['Petani', 'Pedagang', 'PNS', 'Swasta']),
             'internet_access' => $this->faker->randomElement(['wifi', 'seluler']),
-            'first_menstruation' => $this->faker->dateTimeBetween('-25 years', '-10 years')->format('Y-m-d'),
+            'first_menstruation' => $this->faker->numberBetween(8, 21),
         ];
     }
 }
