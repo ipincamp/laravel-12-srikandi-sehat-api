@@ -38,6 +38,7 @@ class SymptomEntryResource extends JsonResource
         return [
             'id' => $this->id,
             'log_date' => Carbon::parse($this->log_date)->toDateString(),
+            'mood_score' => $this->mood_score,
             'notes' => $this->notes,
             'recommendations' => $recommendations, // <-- Data untuk "Penanganan"
             'logged_symptoms' => $loggedSymptoms,   // <-- Data untuk "Gejala yang Dialami"

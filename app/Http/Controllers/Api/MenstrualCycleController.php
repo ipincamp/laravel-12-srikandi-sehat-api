@@ -89,6 +89,7 @@ class MenstrualCycleController extends Controller
             'log_date'           => Carbon::parse($validated['log_date']),
             'notes'              => $validated['notes'] ?? null,
             'menstrual_cycle_id' => $activeCycle?->id,
+            'mood_score'         => $validated['mood_score'] ?? null,
         ]);
 
         // Hubungkan entri dengan semua gejala yang dipilih
