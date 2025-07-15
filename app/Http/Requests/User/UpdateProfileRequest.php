@@ -105,12 +105,13 @@ class UpdateProfileRequest extends FormRequest
                 'string',
                 'in:wifi,seluler'
             ],
-            // first haid
+            // first haid (age in years)
             'first_haid' => [
                 'sometimes',
                 'nullable',
-                'date',
-                'before_or_equal:today'
+                'integer',
+                'min:8',
+                'max:21'
             ],
         ];
     }

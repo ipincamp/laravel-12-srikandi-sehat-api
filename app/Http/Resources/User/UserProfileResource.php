@@ -27,7 +27,6 @@ class UserProfileResource extends JsonResource
             'last_parent_job' => $this->last_parent_job,
             'internet_access' => $this->internet_access,
             'first_menstruation' => $this->first_menstruation,
-            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
             'address' => $this->whenLoaded('village', function () {
                 // 1. Pastikan relasi village tidak null
                 if (!$this->village) {
@@ -48,6 +47,7 @@ class UserProfileResource extends JsonResource
 
                 return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
             }),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
     }
 }

@@ -32,8 +32,8 @@ class AdminSeeder extends Seeder
 
         $admin->assignRole(RolesEnum::ADMIN->value);
 
-        // 200 user dummy dengan data lengkap
-        User::factory(200)
+        // 100 user dummy dengan data lengkap
+        User::factory(100)
             ->has(UserProfile::factory(), 'profile') // Setiap user punya 1 profil
             ->has(
                 MenstrualCycle::factory()->count(rand(3, 6)) // Setiap user punya 3-6 siklus
