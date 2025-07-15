@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\User;
 
+use App\Enums\ClassificationsEnum;
 use App\Http\Resources\Location\VillageResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -34,10 +35,10 @@ class UserProfileResource extends JsonResource
                 }
 
                 // 2. Ambil nama klasifikasi dari relasi, bukan string mentah
-                $classificationName = strtolower(optional($this->village->classification)->name); // akan berisi 'rural' atau 'urban'
+                $classificationName = $this->village->classification->name;
 
                 // 3. Logika pengecekan yang benar
-                $classificationLabel = ($classificationName === 'rural') ? 'DESA' : 'KOTA';
+                $classificationLabel = ($classificationName === ClassificationsEnum::RURAL->value) ? 'DESA' : 'KOTA';
 
                 // Gunakan optional() untuk mencegah error jika ada relasi yang null
                 $villageName = optional($this->village)->name;
