@@ -7,6 +7,7 @@ use App\Exports\UsersExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Requests\User\UpdateProfileRequest;
+use App\Http\Resources\User\AllUserResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Classification;
 use App\Models\User;
@@ -154,17 +155,18 @@ class UserController extends Controller
 
         // 4. Paginasi (tetap sama)
         // Objek $users ini sudah berisi total data yang terfilter
-        $users = $query->paginate(10)->withQueryString();
+        $users = $query->select('id', 'name', 'created_at')->paginate(10)->withQueryString();
 
         // 5. Susun Ulang Respons JSON
         // Kita keluarkan 'stats' dari 'meta' agar tidak menimpa meta bawaan paginasi
-        return UserResource::collection($users)->additional([
+        return AllUserResource::collection($users)->additional([
             "status" => true,
             "message" => "Profile retrieved successfully",
             'meta' => [
                 'stats' => [
-                    'urban' => $stats->get(ClassificationsEnum::URBAN->value, 0),
-                    'rural' => $stats->get(ClassificationsEnum::RURAL->value, 0),
+                    'all_user' => $stats->sum(),
+                    'urban_user' => $stats->get(ClassificationsEnum::URBAN->value, 0),
+                    'rural_user' => $stats->get(ClassificationsEnum::RURAL->value, 0),
                 ]
             ],
         ]);
