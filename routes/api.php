@@ -33,6 +33,7 @@ Route::prefix('locations')->group(function () {
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{userID}', [UserController::class, 'show'])->name('users.show');
     Route::get('users/export-csv', [UserController::class, 'exportCsv'])->name('users.export.csv');
 
     // User Profile
@@ -46,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('cycles/symptoms', [SymptomController::class, '__invoke'])->name('cycles.symptoms');
     // Menstrual Cycle
     Route::prefix('cycles')->controller(MenstrualCycleController::class)->group(function () {
+        Route::get('symptoms/history', 'symptomHistory')->name('cycles.symptoms.history');
         Route::get('symptoms/{entry}', 'showSymptomLog')->name('cycles.symptoms.show');
         Route::get('history', 'history')->name('cycles.history');
         Route::post('start', 'start')->name('cycles.start');
