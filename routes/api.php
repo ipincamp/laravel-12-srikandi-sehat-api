@@ -33,6 +33,7 @@ Route::prefix('locations')->group(function () {
 // Rute yang Membutuhkan Autentikasi
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
+    Route::get('users/{userID}', [UserController::class, 'show'])->name('users.show');
     Route::get('users/export-csv', [UserController::class, 'exportCsv'])->name('users.export.csv');
 
     // User Profile
