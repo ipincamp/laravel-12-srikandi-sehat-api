@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
+use App\Http\Resources\Cycle\AllSymptomResource;
 use App\Http\Resources\Cycle\CycleHistoryResource;
 use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Http\Resources\Cycle\SymptomEntryResource;
@@ -102,6 +103,33 @@ class MenstrualCycleController extends Controller
             status: 201,
             message: 'Symptoms logged successfully.',
             data: new SymptomEntryResource($entry),
+        );
+    }
+
+    /**
+     * Mengambil riwayat gejala yang sudah dicatat.
+     */
+    public function symptomHistory(Request $request)
+    {
+        $user = $request->user();
+
+        // Ambil semua entri gejala yang sudah dicatat
+        $symptomEntries = $user->symptomEntries()
+            ->with('symptoms')
+            ->orderBy('log_date', 'desc')
+            ->get();
+
+        if ($symptomEntries->isEmpty()) {
+            return $this->json(
+                status: 404,
+                message: 'No symptom history found.',
+            );
+        }
+
+        // Kembalikan data dengan resource untuk konsistensi
+        return $this->json(
+            message: 'Symptom history retrieved successfully.',
+            data: AllSymptomResource::collection($symptomEntries),
         );
     }
 
