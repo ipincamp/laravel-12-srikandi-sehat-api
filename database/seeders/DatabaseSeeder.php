@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
             // Symptom Seeder
             SymptomSeeder::class,
             AdminSeeder::class,
+
+            // Cycle User Seeder
+            CycleUserSeeder::class,
         ]);
     }
 }
