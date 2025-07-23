@@ -201,7 +201,7 @@ class UserController extends Controller
             'profile.village.district.regency.province',
             'profile.village.classification',
             'activeCycle',
-            'activeCycle.symptomLogs.symptom',
+            'activeCycle.symptomEntries.symptom',
         ]);
 
         // Kembalikan data user dalam format yang sudah diatur
