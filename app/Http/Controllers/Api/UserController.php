@@ -219,6 +219,6 @@ class UserController extends Controller
      */
     public function exportCsv()
     {
-        return Excel::download(new UsersExport, 'srikandi_sehat_users.csv');
+        return Excel::download(new UsersExport, 'srikandi_sehat_all_data.csv');
     }
 }

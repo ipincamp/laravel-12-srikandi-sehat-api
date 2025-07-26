@@ -34,7 +34,7 @@ Route::prefix('locations')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::get('users/{userID}', [UserController::class, 'show'])->name('users.show');
-    Route::get('users/csv/export', [UserController::class, 'exportCsv'])->name('users.export.csv');
+    Route::get('users/export/csv', [UserController::class, 'exportCsv'])->name('users.export.csv');
 
     // User Profile
     Route::prefix('me')->controller(UserController::class)->name('users.')->group(function () {
