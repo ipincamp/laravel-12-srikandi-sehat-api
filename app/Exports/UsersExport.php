@@ -105,7 +105,7 @@ class UsersExport implements FromCollection, WithHeadings
         $villageName = $village->name;
         $districtName = optional($village->district)->name;
         $regencyName = optional(optional($village->district)->regency)->name;
-        $provinceName = optional(optional($village->district)->regency)->province->name;
+        $provinceName = optional(optional(optional($village->district)->regency)->province)->name;
         return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
     }
 }
