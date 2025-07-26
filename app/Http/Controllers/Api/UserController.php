@@ -201,7 +201,10 @@ class UserController extends Controller
             'profile.village.district.regency.province',
             'profile.village.classification',
             'activeCycle',
-            'activeCycle.symptomEntries.symptom',
+            'menstrualCycles' => function ($query) {
+                $query->whereNotNull('finish_date')->orderBy('start_date', 'asc');
+            },
+            'menstrualCycles.symptomEntries.symptoms',
         ]);
 
         // Kembalikan data user dalam format yang sudah diatur
@@ -216,6 +219,6 @@ class UserController extends Controller
      */
     public function exportCsv()
     {
-        return Excel::download(new UsersExport, 'srikandi_sehat_users.csv');
+        return Excel::download(new UsersExport, 'srikandi_sehat_all_data.csv');
     }
 }

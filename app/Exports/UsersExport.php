@@ -2,89 +2,110 @@
 
 namespace App\Exports;
 
-use App\Enums\RolesEnum;
 use App\Models\User;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 
-class UsersExport implements FromQuery, WithHeadings, WithMapping
+class UsersExport implements FromCollection, WithHeadings
 {
-    /**
-     * Menentukan judul untuk setiap kolom di CSV.
-     */
     public function headings(): array
     {
         return [
-            'ID',
-            'Nama',
+            'User ID',
+            'Nama User',
             'Email',
-            'Role',
             'Telepon',
-            'Tanggal Lahir',
-            'Klasifikasi',
-            'Desa/Kelurahan',
-            'Kecamatan',
-            'Kabupaten/Kota',
-            'Provinsi',
-            'Tinggi (m)',
+            'Umur (Tahun)',
+            'Tinggi (cm)',
             'Berat (kg)',
             'Pendidikan Terakhir',
+            'Pekerjaan Orang Tua',
             'Pendidikan Ortu',
             'Akses Internet',
-            'Menstruasi Pertama',
+            'Usia Haid Pertama (Tahun)',
+            'Alamat Lengkap',
+            'Siklus Ke',
+            'Tanggal Mulai Siklus',
+            'Tanggal Selesai Siklus',
+            'Durasi Haid (Hari)',
+            'Panjang Siklus (Hari)',
+            'Gejala Tercatat (dipisah koma)',
+            'Catatan Gejala (digabung)',
         ];
     }
 
-    /**
-     * Mengambil data dari database secara efisien.
-     */
-    public function query()
+    public function collection(): Collection
     {
-        // Eager load semua relasi yang dibutuhkan untuk performa
-        return User::query()
+        $users = User::whereDoesntHave('roles', fn($q) => $q->where('name', 'admin'))
             ->with([
-                'roles:id,name',
-                'profile.village.classification:id,name',
                 'profile.village.district.regency.province',
-                'activeCycle',
+                'profile.village.classification',
+                'menstrualCycles' => fn($q) => $q->whereNotNull('finish_date')->orderBy('start_date', 'asc'),
+                'menstrualCycles.symptomEntries.symptoms:name',
             ])
-            ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', RolesEnum::ADMIN->value);
-            });
+            ->get();
+
+        $exportData = collect();
+
+        foreach ($users as $user) {
+            $completedCycles = $user->menstrualCycles;
+
+            foreach ($completedCycles as $index => $cycle) {
+                $startDate = Carbon::parse($cycle->start_date);
+                $endDate = Carbon::parse($cycle->finish_date);
+
+                $periodLength = abs($endDate->diffInDays($startDate)) + 1;
+                $cycleLength = null;
+                if (isset($completedCycles[$index + 1])) {
+                    $cycleLength = round(abs(Carbon::parse($completedCycles[$index + 1]->start_date)->diffInDays($startDate)));
+                }
+
+                $symptoms = $cycle->symptomEntries->flatMap->symptoms->pluck('name')->unique()->implode(', ');
+                $notes = $cycle->symptomEntries->pluck('notes')->filter()->implode(' | ');
+
+                $profile = optional($user->profile);
+                $village = optional($profile->village);
+                $classification = optional($village->classification);
+                $address = $this->formatAddress($village, $classification);
+
+                $exportData->push([
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $profile->phone,
+                    'age' => $profile->birthdate ? Carbon::parse($profile->birthdate)->age : null,
+                    'height_cm' => $profile->height_cm,
+                    'weight_kg' => $profile->weight_kg,
+                    'last_education' => $profile->last_education,
+                    'parent_job' => $profile->last_parent_job,
+                    'last_parent_education' => $profile->last_parent_education,
+                    'internet_access' => $profile->internet_access,
+                    'age_at_first_menstruation' => $profile->first_menstruation,
+                    'address' => $address,
+                    'cycle_number' => $index + 1,
+                    'cycle_start_date' => $startDate->toDateString(),
+                    'cycle_finish_date' => $endDate->toDateString(),
+                    'period_length_days' => $periodLength,
+                    'cycle_length_days' => $cycleLength,
+                    'symptoms_list' => $symptoms ?: '-',
+                    'notes_list' => $notes ?: '-',
+                ]);
+            }
+        }
+
+        return $exportData;
     }
 
-    /**
-     * Memetakan setiap baris data ke format yang diinginkan.
-     */
-    public function map($user): array
+    private function formatAddress($village, $classification): ?string
     {
-        // Gunakan optional() untuk mencegah error jika data profile atau relasi lainnya null
-        $profile = optional($user->profile);
-        $village = optional($profile->village);
-        $district = optional($village->district);
-        $regency = optional($district->regency);
-        $province = optional($regency->province);
-        $classification = optional($village->classification);
-
-        return [
-            $user->id,
-            $user->name,
-            $user->email,
-            $user->roles->first()->name ?? 'N/A',
-            $profile->phone,
-            $profile->birthdate,
-            $classification->name,
-            $village->name,
-            $district->name,
-            $regency->name,
-            $province->name,
-            $profile->height_m,
-            $profile->weight_kg,
-            $profile->last_education,
-            $profile->last_parent_education,
-            $profile->internet_access,
-            $profile->first_menstruation,
-        ];
+        if (!$village) return null;
+        $classificationLabel = (strtolower(optional($classification)->name) === 'rural') ? 'DESA' : 'KOTA';
+        $villageName = $village->name;
+        $districtName = optional($village->district)->name;
+        $regencyName = optional(optional($village->district)->regency)->name;
+        $provinceName = optional(optional($village->district)->regency)->province->name;
+        return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
     }
 }

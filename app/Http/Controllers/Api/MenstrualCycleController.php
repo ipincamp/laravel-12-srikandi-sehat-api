@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cycle\LogSymptomRequest;
 use App\Http\Resources\Cycle\AllSymptomResource;
+use App\Http\Resources\Cycle\CycleDetailResource;
 use App\Http\Resources\Cycle\CycleHistoryResource;
 use App\Http\Resources\Cycle\FinishedCycleResource;
 use App\Http\Resources\Cycle\SymptomEntryResource;
+use App\Models\MenstrualCycle;
 use App\Models\Symptom;
 use App\Models\SymptomEntry;
 use Carbon\Carbon;
@@ -68,6 +70,50 @@ class MenstrualCycleController extends Controller
         return $this->json(
             message: 'Menstrual cycle finished successfully.',
             data: new FinishedCycleResource($activeCycle),
+        );
+    }
+
+    /**
+     * Mengambil detail siklus menstruasi yang sudah selesai berdasarkan ID.
+     * Hanya bisa diakses jika siklus sudah selesai (finish_date tidak null).
+     */
+    public function show(Request $request, string $cycleId)
+    {
+        // Cari siklus berdasarkan ID
+        $cycle = MenstrualCycle::find($cycleId);
+
+        if (!$cycle) {
+            return $this->json(
+                status: 404,
+                message: 'Menstrual cycle not found.',
+            );
+        }
+
+        // 1. Cek Otorisasi: Boleh diakses jika...
+        //    a) Pengguna adalah 'admin', ATAU
+        //    b) ID pengguna sama dengan ID pemilik siklus
+        if (!$request->user()->hasRole('admin') && $request->user()->id !== $cycle->user_id) {
+            return $this->json(
+                message: 'This action is unauthorized.',
+                status: 403,
+            );
+        }
+
+        // 2. Cek apakah siklus sudah selesai (sesuai permintaan Anda sebelumnya)
+        if (is_null($cycle->finish_date)) {
+            return $this->json(
+                message: 'This cycle is still active and cannot be viewed in detail yet.',
+                status: 404,
+            );
+        }
+
+        // Muat relasi yang dibutuhkan
+        $cycle->load('symptomEntries.symptoms');
+
+        // Kembalikan data menggunakan resource
+        return $this->json(
+            message: 'Cycle detail retrieved successfully.',
+            data: new CycleDetailResource($cycle)
         );
     }
 
