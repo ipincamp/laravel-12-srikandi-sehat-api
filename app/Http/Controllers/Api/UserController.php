@@ -201,7 +201,10 @@ class UserController extends Controller
             'profile.village.district.regency.province',
             'profile.village.classification',
             'activeCycle',
-            'activeCycle.symptomEntries.symptom',
+            'menstrualCycles' => function ($query) {
+                $query->whereNotNull('finish_date')->orderBy('start_date', 'asc');
+            },
+            'menstrualCycles.symptomEntries.symptoms',
         ]);
 
         // Kembalikan data user dalam format yang sudah diatur

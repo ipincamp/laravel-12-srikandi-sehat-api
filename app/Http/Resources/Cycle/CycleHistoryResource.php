@@ -16,6 +16,7 @@ class CycleHistoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->cycle->id,
             // Ambil data cycle dari objek yang kita kirim dari controller
             'start_date' => Carbon::parse($this->cycle->start_date)->toDateString(),
             'finish_date' => Carbon::parse($this->cycle->finish_date)->toDateString(),
@@ -25,7 +26,7 @@ class CycleHistoryResource extends JsonResource
             'cycle_length_days' => $this->cycle_length_days,
 
             // Gunakan SymptomEntryResource untuk menampilkan detail setiap catatan gejala
-            'symptom_entries' => SymptomEntryResource::collection($this->cycle->symptomEntries),
+            // 'symptom_entries' => SymptomEntryResource::collection($this->cycle->symptomEntries),
         ];
     }
 }
