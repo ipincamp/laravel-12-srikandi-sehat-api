@@ -16,17 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
 
-        $middleware->group('api', [
-            // Middleware lain untuk API bisa ditambahkan di sini, misalnya:
-            /*
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            */
-
-            // Tambahkan middleware Anda di sini
+        $middleware->append(
             \App\Http\Middleware\EnsureJsonResponse::class,
-        ]);
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         /**
