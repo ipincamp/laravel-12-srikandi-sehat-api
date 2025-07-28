@@ -276,7 +276,7 @@ class MenstrualCycleController extends Controller
 
         if (!$currentCycle) {
             return $this->json(
-                status: 404,
+                status: 200,
                 message: 'No current menstrual cycle found.',
                 data: [
                     'cycle_id' => null,
