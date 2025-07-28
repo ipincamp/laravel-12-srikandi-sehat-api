@@ -258,4 +258,62 @@ class MenstrualCycleController extends Controller
             data: new SymptomEntryResource($symptomEntry),
         );
     }
+
+    /**
+     * Mengambil status siklus menstruasi saat ini.
+     * Polimenorea < 21 hari, Oligomenorea > 35 hari, Normal 21-35 hari.
+     * Juga mengambil lama haid (jumlah hari sejak mulai hingga hari ini).
+     */
+    public function status(Request $request)
+    {
+        $user = $request->user();
+
+        // Ambil siklus menstruasi terakhir yang belum selesai
+        $currentCycle = $user->menstrualCycles()
+            ->whereNull('finish_date')
+            ->orderBy('start_date', 'desc')
+            ->first();
+
+        if (!$currentCycle) {
+            return $this->json(
+                status: 200,
+                message: 'No current menstrual cycle found.',
+                data: [
+                    'cycle_id' => null,
+                    'cycle_status' => null,
+                    'cycle_duration_days' => 0,
+                    'period_status' => null,
+                    'period_length_days' => 0,
+                ]
+            );
+        }
+
+        // Hitung durasi siklus saat ini
+        $cycleDuration = Carbon::now()->diffInDays(Carbon::parse($currentCycle->start_date));
+
+        // Lama haid = jumlah hari sejak start_date hingga hari ini (belum selesai)
+        $periodLength = $cycleDuration + 1;
+
+        // Tentukan status siklus
+        $status = match (true) {
+            $cycleDuration < 21 => 'Polimenorea',
+            $cycleDuration > 35 => 'Oligomenorea',
+            default => 'Normal',
+        };
+
+        return $this->json(
+            message: 'Menstrual cycle status retrieved successfully.',
+            data: [
+                'cycle_id' => $currentCycle->id,
+                'cycle_status' => $status,
+                'cycle_duration_days' => abs(round($cycleDuration)),
+                'period_status' => match (true) {
+                    $periodLength < 3 => 'Pendek',
+                    $periodLength > 7 => 'Panjang',
+                    default => 'Normal',
+                },
+                'period_length_days' => abs(round($periodLength)),
+            ]
+        );
+    }
 }
