@@ -278,7 +278,13 @@ class MenstrualCycleController extends Controller
             return $this->json(
                 status: 404,
                 message: 'No current menstrual cycle found.',
-                data: '-'
+                data: [
+                    'cycle_id' => null,
+                    'cycle_status' => null,
+                    'cycle_duration_days' => 0,
+                    'period_status' => null,
+                    'period_length_days' => 0,
+                ]
             );
         }
 
@@ -301,12 +307,12 @@ class MenstrualCycleController extends Controller
                 'cycle_id' => $currentCycle->id,
                 'cycle_status' => $status,
                 'cycle_duration_days' => abs(round($cycleDuration)),
-                'period_length_days' => abs(round($periodLength)),
                 'period_status' => match (true) {
                     $periodLength < 3 => 'Pendek',
                     $periodLength > 7 => 'Panjang',
                     default => 'Normal',
                 },
+                'period_length_days' => abs(round($periodLength)),
             ]
         );
     }
