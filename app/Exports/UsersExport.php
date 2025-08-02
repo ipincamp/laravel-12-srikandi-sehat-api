@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Enums\ClassificationsEnum;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -21,6 +22,7 @@ class UsersExport implements FromCollection, WithHeadings
             'Tinggi (cm)',
             'Berat (kg)',
             'IMT',
+            'Kategori IMT',
             'Pendidikan Terakhir',
             'Pekerjaan Orang Tua',
             'Pendidikan Ortu',
@@ -31,7 +33,9 @@ class UsersExport implements FromCollection, WithHeadings
             'Tanggal Mulai Siklus',
             'Tanggal Selesai Siklus',
             'Durasi Haid (Hari)',
+            'Kategori Lama Haid',
             'Panjang Siklus (Hari)',
+            'Kategori Lama Siklus',
             'Gejala Tercatat (dipisah koma)',
             'Catatan Gejala (digabung)',
         ];
@@ -91,6 +95,26 @@ class UsersExport implements FromCollection, WithHeadings
                     }
                 }
 
+                $cycleLengthLabel = null;
+                if ($cycleLength) {
+                    if ($cycleLength < 21) {
+                        $cycleLengthLabel = 'Pendek (Polimenorea)';
+                    } elseif ($cycleLength >= 21 && $cycleLength <= 35) {
+                        $cycleLengthLabel = 'Normal';
+                    } elseif ($cycleLength > 35) {
+                        $cycleLengthLabel = 'Panjang (Oligomenorea)';
+                    }
+                }
+
+                $periodLengthLabel = null;
+                if ($periodLength < 2) {
+                    $periodLengthLabel = 'Pendek (Hipomenorea)';
+                } elseif ($periodLength >= 2 && $periodLength <= 7) {
+                    $periodLengthLabel = 'Normal';
+                } elseif ($periodLength > 7) {
+                    $periodLengthLabel = 'Panjang (Menoragia)';
+                }
+
                 $exportData->push([
                     'user_id' => $user->id,
                     'user_name' => $user->name,
@@ -99,7 +123,8 @@ class UsersExport implements FromCollection, WithHeadings
                     'age' => $profile->birthdate ? Carbon::parse($profile->birthdate)->age : null,
                     'height_cm' => $profile->height_cm,
                     'weight_kg' => $profile->weight_kg,
-                    'imt' => "{$imt} ({$imtLabel})",
+                    'imt' => $imt,
+                    'imt_label' => $imtLabel,
                     'last_education' => $profile->last_education,
                     'parent_job' => $profile->last_parent_job,
                     'last_parent_education' => $profile->last_parent_education,
@@ -110,7 +135,9 @@ class UsersExport implements FromCollection, WithHeadings
                     'cycle_start_date' => $startDate->toDateString(),
                     'cycle_finish_date' => $endDate->toDateString(),
                     'period_length_days' => $periodLength,
+                    'period_length_label' => $periodLengthLabel,
                     'cycle_length_days' => $cycleLength,
+                    'cycle_length_label' => $cycleLengthLabel,
                     'symptoms_list' => $symptoms ?: '-',
                     'notes_list' => $notes ?: '-',
                 ]);
@@ -123,7 +150,7 @@ class UsersExport implements FromCollection, WithHeadings
     private function formatAddress($village, $classification): ?string
     {
         if (!$village) return null;
-        $classificationLabel = (strtolower(optional($classification)->name) === 'rural') ? 'DESA' : 'KOTA';
+        $classificationLabel = (optional($classification)->name === ClassificationsEnum::RURAL->value) ? 'DESA' : 'KOTA';
         $villageName = $village->name;
         $districtName = optional($village->district)->name;
         $regencyName = optional(optional($village->district)->regency)->name;
