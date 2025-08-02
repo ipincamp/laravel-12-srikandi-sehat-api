@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -139,6 +140,31 @@ class UserController extends Controller
             ->get()
             ->pluck('total_users', 'name');
 
+        // Kriteria 1: User yang login dalam 30 hari terakhir
+        $usersActiveRecently = DB::table('personal_access_tokens')
+            ->where('last_used_at', '>=', now()->subDays(30))
+            ->distinct()
+            ->pluck('tokenable_id');
+
+        // Kriteria 2: User yang sudah punya minimal 2 siklus
+        $usersWithMinTwoCycles = DB::table('menstrual_cycles')
+            ->select('user_id')
+            ->groupBy('user_id')
+            ->havingRaw('COUNT(id) >= 2')
+            ->pluck('user_id');
+
+        // Gabungkan kedua daftar ID dan buat menjadi unik
+        $allPotentiallyActiveUserIds = $usersActiveRecently->merge($usersWithMinTwoCycles)->unique();
+
+        // Dapatkan ID admin untuk dikecualikan
+        $adminRole = Role::where('name', RolesEnum::ADMIN->value)->first();
+        $adminIds = DB::table('model_has_roles')
+            ->where('role_id', $adminRole?->id)
+            ->pluck('model_id');
+
+        // Hitung total user aktif setelah membuang admin
+        $activeUserCount = $allPotentiallyActiveUserIds->diff($adminIds)->count();
+
         // 3. Query utama untuk daftar user (tetap sama)
         $query = User::query()->with(['profile.village.classification', 'roles']);
 
@@ -166,6 +192,7 @@ class UserController extends Controller
             'meta' => [
                 'stats' => [
                     'all_user' => $stats->sum(),
+                    'active_users' => $activeUserCount,
                     'urban_user' => $stats->get(ClassificationsEnum::URBAN->value, 0),
                     'rural_user' => $stats->get(ClassificationsEnum::RURAL->value, 0),
                 ]
