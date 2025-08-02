@@ -12,6 +12,7 @@ use App\Http\Resources\Cycle\SymptomEntryResource;
 use App\Models\MenstrualCycle;
 use App\Models\Symptom;
 use App\Models\SymptomEntry;
+use App\Services\CycleAnalyticsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -314,6 +315,19 @@ class MenstrualCycleController extends Controller
                 },
                 'period_length_days' => abs(round($periodLength)),
             ]
+        );
+    }
+
+    /**
+     * Memberikan ringkasan dan analisis siklus pengguna.
+     */
+    public function summary(Request $request, CycleAnalyticsService $analyticsService)
+    {
+        $summaryData = $analyticsService->calculateForUser($request->user());
+
+        return $this->json(
+            message: 'Cycle summary retrieved successfully.',
+            data: $summaryData
         );
     }
 }
