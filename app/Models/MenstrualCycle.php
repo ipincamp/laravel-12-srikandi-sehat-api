@@ -18,6 +18,8 @@ class MenstrualCycle extends Model
         'user_id',
         'start_date',
         'finish_date',
+        'period_prolonged_notified_at',
+        'cycle_irregularity_notified_at',
     ];
 
     /**
