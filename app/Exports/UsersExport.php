@@ -20,6 +20,7 @@ class UsersExport implements FromCollection, WithHeadings
             'Umur (Tahun)',
             'Tinggi (cm)',
             'Berat (kg)',
+            'IMT',
             'Pendidikan Terakhir',
             'Pekerjaan Orang Tua',
             'Pendidikan Ortu',
@@ -70,6 +71,26 @@ class UsersExport implements FromCollection, WithHeadings
                 $classification = optional($village->classification);
                 $address = $this->formatAddress($village, $classification);
 
+                $imt = null;
+                $imtLabel = null;
+                if ($profile->height_cm && $profile->weight_kg) {
+                    $heightInMeters = $profile->height_cm / 100;
+                    $imt = round($profile->weight_kg / ($heightInMeters * $heightInMeters), 2);
+                    if ($imt < 17) {
+                        $imtLabel = 'Sangat Kurus';
+                    } elseif ($imt >= 17 && $imt < 18.5) {
+                        $imtLabel = 'Kurus';
+                    } elseif ($imt >= 18.5 && $imt <= 25) {
+                        $imtLabel = 'Normal';
+                    } elseif ($imt > 25 && $imt <= 27) {
+                        $imtLabel = 'Gemuk';
+                    } elseif ($imt > 27) {
+                        $imtLabel = 'Obesitas';
+                    } else {
+                        $imtLabel = null;
+                    }
+                }
+
                 $exportData->push([
                     'user_id' => $user->id,
                     'user_name' => $user->name,
@@ -78,6 +99,7 @@ class UsersExport implements FromCollection, WithHeadings
                     'age' => $profile->birthdate ? Carbon::parse($profile->birthdate)->age : null,
                     'height_cm' => $profile->height_cm,
                     'weight_kg' => $profile->weight_kg,
+                    'imt' => "{$imt} ({$imtLabel})",
                     'last_education' => $profile->last_education,
                     'parent_job' => $profile->last_parent_job,
                     'last_parent_education' => $profile->last_parent_education,
