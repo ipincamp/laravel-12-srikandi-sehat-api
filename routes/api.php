@@ -55,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('finish', 'finish')->name('cycles.finish');
         Route::post('symptoms', 'logSymptoms')->name('cycles.log_symptoms');
         Route::get('/status', 'status')->name('cycles.status');
+
+        Route::get('summary', 'summary')->name('cycles.summary');
     });
 
     // Logout
