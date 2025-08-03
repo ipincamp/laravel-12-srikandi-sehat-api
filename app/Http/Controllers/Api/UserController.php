@@ -111,6 +111,55 @@ class UserController extends Controller
     }
 
     /**
+     * Mengambil statistik pengguna.
+     * total_user selain admin
+     * active_user adalah user yang sudah punya minimal 2 siklus
+     * urban_user adalah user yang tinggal di wilayah perkotaan
+     * rural_user adalah user yang tinggal di wilayah pedesaan
+     */
+    public function stats()
+    {
+        // Dapatkan ID admin untuk dikecualikan
+        $adminRole = Role::where('name', RolesEnum::ADMIN->value)->first();
+
+        // Hitung total user aktif setelah membuang admin
+        $usersWithMinTwoCycles = DB::table('menstrual_cycles')
+            ->select('user_id')
+            ->groupBy('user_id')
+            ->havingRaw('COUNT(id) >= 2')
+            ->pluck('user_id');
+
+        $activeUserCount = User::whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'admin');
+        })->whereIn('id', $usersWithMinTwoCycles)->count();
+
+        // Hitung total user yang bukan admin
+        $totalUserCount = User::whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'admin');
+        })->count();
+
+        // Hitung urban dan rural user
+        $urbanUserCount = User::whereHas('profile.village.classification', function ($query) {
+            $query->where('name', ClassificationsEnum::URBAN->value);
+        })->count();
+
+        $ruralUserCount = User::whereHas('profile.village.classification', function ($query) {
+            $query->where('name', ClassificationsEnum::RURAL->value);
+        })->count();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Statistics retrieved successfully',
+            'data' => [
+                'total_user' => $totalUserCount,
+                'active_user' => $activeUserCount,
+                'urban_user' => $urbanUserCount,
+                'rural_user' => $ruralUserCount,
+            ],
+        ]);
+    }
+
+    /**
      * Menampilkan daftar semua user dengan filter dan paginasi.
      */
     public function index(Request $request)
