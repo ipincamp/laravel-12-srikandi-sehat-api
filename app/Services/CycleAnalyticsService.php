@@ -13,6 +13,70 @@ class CycleAnalyticsService
      */
     public function calculateForUser(User $user): array
     {
+        // Ambil 2 siklus terakhir yang sudah selesai untuk analisis
+        $lastTwoCompletedCycles = $user->menstrualCycles()
+            ->whereNotNull('finish_date')
+            ->latest('start_date')
+            ->take(2)
+            ->get();
+        
+        $activeCycle = $user->activeCycle;
+        $lastCompletedCycle = $lastTwoCompletedCycles->first();
+
+        // Siapkan struktur respons dengan semua flag
+        $summary = [
+            'active_cycle_running_days' => null,
+            'notification_flags' => [
+                'period_is_prolonged' => false, // Haid saat ini > 7 hari
+                'period_is_short' => false,     // Haid terakhir < 3 hari
+                'cycle_is_late' => false,       // Siklus berikutnya > 35 hari belum mulai
+                'cycle_is_short' => false,      // Siklus terakhir < 21 hari
+            ]
+        ];
+
+        // 1. Analisis jika ada siklus yang SEDANG BERJALAN
+        if ($activeCycle) {
+            $runningDays = abs(Carbon::now()->diffInDays(Carbon::parse($activeCycle->start_date))) + 1;
+            $summary['active_cycle_running_days'] = $runningDays;
+
+            // Cek apakah haid terlalu lama & notifikasi belum dikirim
+            if ($runningDays > 7 && is_null($activeCycle->period_prolonged_notified_at)) {
+                $summary['notification_flags']['period_is_prolonged'] = true;
+            }
+        }
+        // 2. Analisis jika TIDAK ada siklus aktif (cek keterlambatan siklus berikutnya)
+        elseif ($lastCompletedCycle) {
+            $daysSinceLastCycleEnded = abs(Carbon::now()->diffInDays(Carbon::parse($lastCompletedCycle->finish_date)));
+
+            // Cek apakah siklus terlambat & notifikasi belum dikirim
+            if ($daysSinceLastCycleEnded > 35 && is_null($lastCompletedCycle->cycle_irregularity_notified_at)) {
+                $summary['notification_flags']['cycle_is_late'] = true;
+            }
+        }
+
+        // 3. Analisis SIKLUS TERAKHIR YANG SUDAH SELESAI
+        if ($lastCompletedCycle) {
+            // Cek durasi haid terakhir terlalu pendek
+            $lastPeriodLength = abs(Carbon::parse($lastCompletedCycle->finish_date)->diffInDays(Carbon::parse($lastCompletedCycle->start_date))) + 1;
+            if ($lastPeriodLength < 3 && is_null($lastCompletedCycle->period_prolonged_notified_at)) {
+                $summary['notification_flags']['period_is_short'] = true;
+            }
+            
+            // Cek panjang siklus terakhir terlalu pendek (butuh 2 data siklus)
+            $previousCycle = $lastTwoCompletedCycles->last();
+            if ($lastTwoCompletedCycles->count() > 1) {
+                $lastCycleLength = abs(Carbon::parse($lastCompletedCycle->start_date)->diffInDays(Carbon::parse($previousCycle->start_date)));
+                if ($lastCycleLength < 21 && is_null($lastCompletedCycle->cycle_irregularity_notified_at)) {
+                    $summary['notification_flags']['cycle_is_short'] = true;
+                }
+            }
+        }
+        
+        return $summary;
+    }
+    
+    public function calculateForUserss(User $user): array
+    {
         // Ambil siklus terakhir (baik yang sedang aktif maupun yang baru selesai)
         $lastCycle = $user->menstrualCycles()->latest('start_date')->first();
         $activeCycle = $user->activeCycle; // Relasi yang sudah kita buat sebelumnya
