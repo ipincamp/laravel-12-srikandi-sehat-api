@@ -28,7 +28,8 @@ return new class extends Migration
                 */
             ]);
             $table->text('description')->nullable();
-            $table->text('recommendation')->nullable();
+            $table->text('recommendation_txt')->nullable();
+            $table->text('recommendation_url')->nullable();
             $table->timestamps();
         });
     }
