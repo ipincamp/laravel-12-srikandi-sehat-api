@@ -23,10 +23,21 @@ class SymptomEntryResource extends JsonResource
             foreach ($this->symptoms as $symptom) {
                 // 1. Buat array untuk bagian "Penanganan"
                 // Hanya tambahkan jika ada teks rekomendasi
-                if (!empty($symptom->recommendation)) {
+                if (!empty($symptom->recommendation_txt)) {
+                    $recommendationUrls = [];
+                    if (!empty($symptom->recommendation_url)) {
+                        $recommendationUrls = array_map(function ($url) {
+                            return [
+                                'id' => $url['id'] ?? null,
+                                'action' => $url['action'] ?? null,
+                                'video_url' => $url['video_url'] ?? null,
+                            ];
+                        }, json_decode(str_replace("'", '"', $symptom->recommendation_url), true) ?: []);
+                    }
                     $recommendations[] = [
                         'symptom_name' => $symptom->name,
-                        'recommendation_text' => $symptom->recommendation,
+                        'recommendation_txt' => $symptom->recommendation_txt,
+                        'recommendation_url' => $recommendationUrls,
                     ];
                 }
 
