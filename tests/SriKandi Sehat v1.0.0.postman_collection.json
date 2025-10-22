@@ -1,0 +1,437 @@
+{
+	"info": {
+		"_postman_id": "39790e37-e8c5-4019-bca0-df31be47d9cb",
+		"name": "SriKandi Sehat v1.0.0",
+		"description": "API Collection untuk aplikasi SriKandi Sehat.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26308469",
+		"_collection_link": "https://lively-meadow-808204.postman.co/workspace/Sri-Kandi-Sehat~8f5874fe-55c9-490c-bcc3-cdfdfc9776c0/collection/26308469-39790e37-e8c5-4019-bca0-df31be47d9cb?action=share&source=collection_link&creator=26308469"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    pm.environment.set('authToken', pm.response.json().data.token);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "User Baru",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "user@srikandi.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "Password123!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/register",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set('authToken', pm.response.json().data.token);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "user@srikandi.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Password123!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/auth/login",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/auth/logout",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint untuk autentikasi: register, login, dan logout."
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/me",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me"
+							]
+						},
+						"description": "Mengambil informasi tentang user yang terautentikasi."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "User Srikandi Sehat",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "user@srikandi.com",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "081234567890",
+									"type": "text"
+								},
+								{
+									"key": "address",
+									"value": "3302010008",
+									"type": "text"
+								},
+								{
+									"key": "birthdate",
+									"value": "2022-07-02",
+									"type": "text"
+								},
+								{
+									"key": "tb_m",
+									"value": "1.7",
+									"type": "text"
+								},
+								{
+									"key": "bb_kg",
+									"value": "65",
+									"type": "text"
+								},
+								{
+									"key": "edu_now",
+									"value": "Sarjana",
+									"type": "text"
+								},
+								{
+									"key": "edu_parent",
+									"value": "SMK",
+									"type": "text"
+								},
+								{
+									"key": "inet_access",
+									"value": "wifi",
+									"type": "text"
+								},
+								{
+									"key": "first_haid",
+									"value": "2020-06-28",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/me/profile",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "old_password",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "PasswordBaru456!",
+									"type": "text"
+								},
+								{
+									"key": "new_password_confirmation",
+									"value": "PasswordBaru456!",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/me/password",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"me",
+								"password"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint untuk mengelola data user yang sedang login."
+		},
+		{
+			"name": "Locations",
+			"item": [
+				{
+					"name": "Get Provinces",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/locations/provinces",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"locations",
+								"provinces"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Regencies by Province",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/locations/provinces/:province/regencies",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"locations",
+								"provinces",
+								":province",
+								"regencies"
+							],
+							"variable": [
+								{
+									"key": "province",
+									"value": "33"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Districts by Regency",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/locations/regencies/:regency/districts",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"locations",
+								"regencies",
+								":regency",
+								"districts"
+							],
+							"variable": [
+								{
+									"key": "regency",
+									"value": "3302"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Villages by District",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/locations/districts/:districtCode/villages",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"locations",
+								"districts",
+								":districtCode",
+								"villages"
+							],
+							"variable": [
+								{
+									"key": "districtCode",
+									"value": "3302170"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint publik untuk mendapatkan data wilayah Indonesia."
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://127.0.0.1:8000/api"
+		},
+		{
+			"key": "authToken",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Resources\User;
+
+use App\Enums\ClassificationsEnum;
+use App\Http\Resources\Location\VillageResource;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class UserProfileResource extends JsonResource
+{
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'phone' => $this->phone,
+            'birthdate' => $this->birthdate,
+            'height_cm' => $this->height_cm,
+            'weight_kg' => $this->weight_kg,
+            'bmi' => $this->weight_kg && $this->height_cm ? round($this->weight_kg / (($this->height_cm / 100) ** 2), 2) : null,
+            'last_education' => $this->last_education,
+            'last_parent_education' => $this->last_parent_education,
+            'last_parent_job' => $this->last_parent_job,
+            'internet_access' => $this->internet_access,
+            'first_menstruation' => $this->first_menstruation,
+            'address' => $this->whenLoaded('village', function () {
+                // 1. Pastikan relasi village tidak null
+                if (!$this->village) {
+                    return null;
+                }
+
+                // 2. Ambil nama klasifikasi dari relasi, bukan string mentah
+                $classificationName = $this->village->classification->name;
+
+                // 3. Logika pengecekan yang benar
+                $classificationLabel = ($classificationName === ClassificationsEnum::RURAL->value) ? 'DESA' : 'KOTA';
+
+                // Gunakan optional() untuk mencegah error jika ada relasi yang null
+                $villageName = optional($this->village)->name;
+                $districtName = optional($this->village->district)->name;
+                $regencyName = optional(optional($this->village->district)->regency)->name;
+                $provinceName = optional(optional(optional($this->village->district)->regency)->province)->name;
+
+                return "($classificationLabel) {$villageName}, KECAMATAN {$districtName}, KABUPATEN {$regencyName}, PROVINSI {$provinceName}";
+            }),
+            'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
+        ];
+    }
+}

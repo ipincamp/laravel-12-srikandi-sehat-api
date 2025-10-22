@@ -1,0 +1,58 @@
+services:
+  #--- Layanan Aplikasi Laravel (PHP-FPM) ---#
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: srikandi_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    networks:
+      - srikandisehat
+    depends_on:
+      - db
+
+  #--- Layanan Web Server (Nginx) ---#
+  web:
+    image: nginx:stable-alpine
+    container_name: srikandi_web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - srikandisehat
+    depends_on:
+      - app
+
+  #--- Layanan Database (MariaDB) ---#
+  db:
+    image: mariadb:10.11.13
+    container_name: srikandi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - srikandisehat-data:/var/lib/mysql
+    networks:
+      - srikandisehat
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+# Network & Volume
+networks:
+  srikandisehat:
+    driver: bridge
+
+volumes:
+  srikandisehat-data:
+    driver: local
